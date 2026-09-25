@@ -4,7 +4,7 @@ const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&
 // Real results occupy individual cards. Unfilled places are marked with an em dash,
 // never with invented names or scores. Full names remain available to accessibility.
 export function rankingCards(rows, { slots = 10, currentId } = {}) {
-  if (!rows.length) return '<div class="empty-rank" role="listitem"><span class="empty-rank-icon" aria-hidden="true">✦</span><p>Пока нет результатов.<br>Сыграйте первым!</p></div>';
+  if (!rows.length) return '<div class="empty-rank" role="listitem"><p>Пока нет результатов.<br>Сыграйте первым!</p></div>';
   return Array.from({length:slots}, (_,i) => {
     const r = rows[i], n = i + 1;
     if (!r) return `<div class="leader-card vacant" role="listitem" aria-label="Место ${n}: пока нет результата" style="--row:${i}"><span class="leader-place" aria-hidden="true">${n}</span><span class="vacant-name" aria-hidden="true"></span><span class="leader-time" aria-hidden="true">—</span></div>`;

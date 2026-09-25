@@ -1,6 +1,8 @@
 import { CONFIG, PRODUCTS } from './config.js';
 import { Round, createDeck, normalizeName, validName, phoneDigits, formatPhone, validPhone, formatTime, leaderboard, csvCell } from './engine.js';
 import { rankingCards } from './ranking.js';
+import { icon, iconPaths } from './icons.js';
+import { canvasMetrics } from './layout.js';
 import { openDatabase, registerPlayer, saveAttempt, readStore, allData } from './storage.js';
 
 const stage = document.querySelector('#stage');
@@ -12,22 +14,19 @@ const timeouts = new Set();
 const form = { firstName: '', lastName: '', phone: '' };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 const image = (name, cls = '', alt = '') => `<img class="${cls}" src="./assets/${name}" alt="${esc(alt)}" draggable="false">`;
-const button = (label, action, classes = '', icon = 'arrow', disabled = false) => `<button type="button" class="action ${classes}" data-action="${action}" ${disabled ? 'disabled' : ''}><span>${label}</span>${icon ? `<span class="action-disc">${image(icon + '.svg')}</span>` : ''}</button>`;
-const closeButton = () => `<button class="close" data-action="close" aria-label="Закрыть">${image('close.svg')}</button>`;
+const button = (label, action, classes = '', glyph = 'arrow', disabled = false) => `<button type="button" class="action ${classes}" data-action="${action}" ${disabled ? 'disabled' : ''}><span>${label}</span>${glyph ? `<span class="action-disc">${icon(glyph)}</span>` : ''}</button>`;
+const closeButton = () => `<button type="button" class="close" data-action="close" aria-label="Закрыть">${icon('close')}</button>`;
 function later(callback, ms) { const current = generation; const id = setTimeout(() => { timeouts.delete(id); if (current === generation) callback(); }, ms); timeouts.add(id); }
 function cancelPending() { generation++; for (const id of timeouts) clearTimeout(id); timeouts.clear(); cancelAnimationFrame(animationFrame); }
 function say(message) { announce.textContent = message; }
-function resize() { stage.style.setProperty('--scale', Math.min(innerWidth / 1920, innerHeight / 1080)); }
+function resize() {
+  const canvas = canvasMetrics(innerWidth, innerHeight);
+  stage.style.setProperty('--scale', canvas.scale);
+  stage.style.setProperty('--canvas-width', `${canvas.width}px`);
+  stage.style.setProperty('--canvas-height', `${canvas.height}px`);
+}
 addEventListener('resize', resize); resize();
 
-const iconPaths = {
-  back: '<path d="m38 12-20 20 20 20M20 32h36"/>',
-  exit: '<path d="M27 12H12v40h15M36 20l12 12-12 12M24 32h24"/>',
-  user: '<circle cx="32" cy="21" r="11"/><path d="M12 54c0-12 8-19 20-19s20 7 20 19"/>',
-  gift: '<path d="M12 29h40v26H12zM8 18h48v11H8zM32 18v37"/><path d="M32 18C13 21 13 5 22 7c5 1 8 6 10 11Zm0 0C51 21 51 5 42 7c-5 1-8 6-10 11Z"/>',
-  star: '<path d="m32 6 8 17 19 3-14 13 3 19-16-9-16 9 3-19L5 26l19-3Z"/>',
-};
-const icon = (name, cls = '') => `<svg class="ui-icon ${cls}" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name]}</svg>`;
 const backButton = action => `<button type="button" class="screen-back" data-action="${action}">${icon('back')}<span>Назад</span></button>`;
 function heart(cls) {
   return `<svg class="match-heart ${cls}" viewBox="0 0 100 96" aria-hidden="true"><path d="M50 87 13 52C-11 26 19-2 40 17l10 10 10-10C81-2 111 26 87 52Z" fill="currentColor"/><path d="M19 34c-1-12 11-17 19-9" fill="none" stroke="white" stroke-opacity=".65" stroke-width="6" stroke-linecap="round"/></svg>`;
@@ -44,7 +43,7 @@ function homeMarkup() {
   return `<section class="screen start-screen" aria-label="Найди пару">
     ${image('logo.svg', 'brand', 'Авито')}
     <div class="start-grid"><div class="start-left"><div class="title-tile"><h1>Найди<br>пару</h1><span class="underline"></span></div>
-      ${button('Начать игру', 'rules', 'start-action', 'play')}${button('Рейтинг', 'rank', 'quiet', '')}</div>
+      ${button('Играть', 'rules', 'start-action')}${button('Рейтинг', 'rank', 'quiet', '')}</div>
       <div class="hero-art" aria-hidden="true"><div class="hero-hidden"><div class="card static">${backFace(true)}</div></div><div class="hero-revealed"><div class="card static matched flipped">${frontFace('headphones', true)}</div></div></div>
     </div></section>`;
 }
@@ -57,27 +56,26 @@ function showRules() {
   cancelPending(); screen = 'rules';
   stage.innerHTML = `<section class="screen rules-screen" aria-labelledby="rules-title"><h1 id="rules-title" class="screen-title">Вы в игре «Найди пару»</h1>${backButton('home')}
   <ol class="rules-grid">
-    <li class="rule-register"><span class="rule-number">1</span>${icon('user', 'rule-icon')}<p>Зарегистрируйтесь<br>в игре</p></li>
+    <li class="rule-register"><span class="rule-number">1</span><div class="rule-symbol">${icon('registration')}</div><p>Зарегистрируйтесь<br>в игре</p></li>
     <li class="rule-pairs"><span class="rule-number">2</span><p>Переворачивайте карточки<br>и находите пары</p><div class="rule-pair-art" aria-hidden="true"><div class="rule-mini-card first">${image('products/headphones.png')}</div><div class="rule-mini-card second">${image('products/headphones.png')}</div><span class="rule-pair-spark">✦</span></div></li>
-    <li class="rule-speed"><span class="rule-number">3</span><p>Уложитесь в 45 секунд<br>и получите подарок</p><div class="rule-visual" aria-hidden="true"><span>45</span>${icon('gift')}</div></li>
-    <li class="rule-prize"><span class="rule-number">4</span><p>Попадите в топ-10,<br>чтобы стать обладателем<br>суперприза</p><div class="rule-visual" aria-hidden="true"><span>10</span>${icon('star')}</div></li>
-  </ol><div class="rules-footer"><p>Количество попыток не ограничено<br><span>Удачи!</span></p></div>${button('Далее', 'register', 'rules-next', 'arrow-large')}</section>`;
+    <li class="rule-speed"><span class="rule-number">3</span><p>Уложитесь в 45 секунд<br>и получите подарок</p><div class="rule-symbol">${icon('gift')}</div></li>
+    <li class="rule-prize"><span class="rule-number">4</span><p>Попадите в топ-10,<br>чтобы стать обладателем<br>суперприза</p><div class="rule-symbol">${icon('trophy')}</div></li>
+  </ol><div class="rules-footer"><p>Количество попыток не ограничено<br><span>Удачи!</span></p></div>${button('Далее', 'register', 'rules-next')}</section>`;
 }
 
 function field(key, label) {
-  return `<label class="field ${form[key] ? 'filled' : ''}"><span>${label}</span><input aria-label="${label}" name="${key}" id="${key}" type="text" inputmode="none" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="${key === 'phone' ? 24 : 32}" value="${esc(form[key])}" placeholder=" "></label>`;
+  return `<label class="field ${form[key] ? 'filled' : ''}"><span>${label}</span><span class="field-hint" id="${key}-hint" aria-live="polite"></span><input aria-label="${label}" aria-describedby="${key}-hint" name="${key}" id="${key}" type="text" inputmode="none" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="${key === 'phone' ? 24 : 32}" value="${esc(form[key])}" placeholder=" "></label>`;
 }
 function showRegister() {
   cancelPending(); screen = 'register'; activeInput = null; busy = false;
   stage.innerHTML = `<section class="screen register-screen" aria-labelledby="form-title"><h1 class="screen-title" id="form-title">Давайте познакомимся</h1>${backButton('rules')}
-  <form id="registration" novalidate><div class="form-panel"><div class="form-fields">${field('firstName', 'Имя')}${field('lastName', 'Фамилия')}${field('phone', 'Телефон')}</div>
-  <p class="consent">оставляя личную информацию, вы соглашаетесь с <button type="button" data-action="terms">Условиями использования</button> и с <button type="button" data-action="privacy">Политикой обработки персональных данных</button></p></div>
-  <button type="button" class="form-next arrow-submit" data-action="submit" aria-label="Начать игру" disabled><svg viewBox="0 0 240 240" aria-hidden="true" fill="none"><path d="M36 120h160M126 50l70 70-70 70" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="form-error" role="alert"></div></form>
+  <form id="registration" novalidate><div class="form-panel"><div class="form-fields">${field('firstName', 'Имя')}${field('lastName', 'Фамилия')}${field('phone', 'Телефон')}</div><div class="form-error" role="alert"></div></div>
+  <div class="form-aside"><p class="consent">оставляя личную информацию, вы соглашаетесь с <button type="button" data-action="terms">Условиями использования</button> и с <button type="button" data-action="privacy">Политикой обработки персональных данных</button></p>${button('Играть', 'submit', 'form-next', 'arrow', true)}</div></form>
   <div id="keyboard"></div></section>`;
   document.querySelector('#registration').addEventListener('submit', e => { e.preventDefault(); submitRegistration(); });
   for (const input of document.querySelectorAll('.field input')) {
     input.addEventListener('focus', () => { activeInput = input; input.closest('.field').classList.add('focused'); renderKeyboard(); });
-    input.addEventListener('blur', () => input.closest('.field').classList.remove('focused'));
+    input.addEventListener('blur', () => { input.closest('.field').classList.remove('focused'); if (input.value) validateField(input.name); });
     input.addEventListener('input', () => {
       const caret = input.selectionStart;
       const clean = input.name === 'phone' ? formatPhone(input.value) : normalizeName(input.value);
@@ -97,6 +95,15 @@ function updateForm() {
   document.querySelector('[data-action="submit"]').disabled = !valid || busy;
   const err = document.querySelector('.form-error');
   if (err) err.textContent = '';
+  for (const input of document.querySelectorAll('.field input[aria-invalid="true"]')) validateField(input.name);
+}
+function validateField(key) {
+  const input = document.querySelector(`#${key}`);
+  const valid = key === 'phone' ? validPhone(form[key]) : validName(form[key]);
+  input.setAttribute('aria-invalid', String(!valid));
+  input.closest('.field').classList.toggle('invalid', !valid);
+  document.querySelector(`#${key}-hint`).textContent = valid ? '' : key === 'phone' ? 'Проверьте номер телефона' : key === 'firstName' ? 'Введите имя' : 'Введите фамилию';
+  return valid;
 }
 function hideKeyboard() {
   activeInput?.blur(); activeInput = null;
@@ -121,10 +128,10 @@ function renderKeyboard() {
 function keyboardNext() {
   if (!activeInput) return;
   const key = activeInput.name;
+  if (!validateField(key)) return;
   if (key !== 'phone') document.querySelector(key === 'firstName' ? '#lastName' : '#phone').focus();
   else {
-    if (!validPhone(form.phone)) document.querySelector('.form-error').textContent = 'Проверьте номер телефона';
-    else document.querySelector('[data-action="submit"]').focus({ preventScroll: true });
+    document.querySelector('[data-action="submit"]').focus({ preventScroll: true });
   }
 }
 function typeKey(key) {
@@ -169,8 +176,8 @@ function startRound() {
   stage.innerHTML = `<section class="screen game-screen" aria-labelledby="game-title"><h1 id="game-title" class="game-title">Найдите пару одинаковых картинок<br>за максимально короткое время</h1>
   <div class="pairs-tile"><span>Найдено пар</span><strong><span id="pair-count">0</span><span class="pair-total"> / 9</span></strong><div class="pair-progress" role="progressbar" aria-label="Найдено пар" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0">${Array.from({length:9}, () => '<span aria-hidden="true"></span>').join('')}</div></div>
   <div class="time-tile"><span>Время</span><output id="timer" aria-label="Время игры">0:00</output></div>
-  <div class="board" aria-label="Игровое поле, 18 карточек">${round.deck.map((c, i) => `<button class="card" style="--deal:${i}" data-card="${i}" aria-label="Карточка ${i + 1}, закрыта" aria-pressed="false"><span class="card-inner">${backFace()}${frontFace(c.product)}</span></button>`).join('')}</div>
-  <button class="restart" data-action="restart">${image('restart.svg')}<span>Рестарт</span></button><div class="match-feedback" aria-hidden="true"></div><button type="button" class="game-exit" data-action="exit">${icon('exit')}<span>Выйти из игры</span></button></section>`;
+  <div class="board" aria-label="Игровое поле, 18 карточек">${round.deck.map((c, i) => `<div class="card-slot" style="--deal:${i}"><button class="card" data-card="${i}" aria-label="Карточка ${i + 1}, закрыта" aria-pressed="false"><span class="card-inner">${backFace()}${frontFace(c.product)}</span></button></div>`).join('')}</div>
+  <button type="button" class="game-control game-exit" data-action="exit"><span>Выйти из игры</span>${icon('exit')}</button><div class="match-feedback" aria-hidden="true"></div><button type="button" class="game-control restart" data-action="restart"><span>Рестарт</span>${icon('restart')}</button></section>`;
   function tick() { const timer = document.querySelector('#timer'); if (timer && round) timer.textContent = formatTime(round.elapsed); if (!round?.complete && screen === 'game') animationFrame = requestAnimationFrame(tick); }
   tick(); say('Игра началась. Найдите девять пар.');
 }
@@ -193,20 +200,21 @@ function celebrateMatch() {
   for (const i of round.open) {
     const card = document.querySelector(`[data-card="${i}"]`);
     card.classList.add('match-flash');
-    later(() => card.classList.remove('match-flash'), 1200);
+    card.insertAdjacentHTML('beforeend', `<span class="card-burst" aria-hidden="true">${Array.from({length:8}, (_,n) => `<i style="--angle:${n*45}deg;--travel:${n%2?86:108}px"></i>`).join('')}</span>`);
+    later(() => { card.classList.remove('match-flash'); card.querySelector('.card-burst')?.remove(); }, 1500);
   }
   const feedback = document.querySelector('.match-feedback');
-  feedback.innerHTML = `<div class="pair-celebration">${heart('heart-left')}${heart('heart-main')}${heart('heart-right')}<span class="match-spark s1">✦</span><span class="match-spark s2">✦</span><span class="match-spark s3">✦</span><span class="match-spark s4">✦</span></div>`;
+  feedback.innerHTML = `<div class="pair-celebration"><span class="heart-halo"></span>${heart('heart-left')}${heart('heart-main')}${heart('heart-right')}<span class="match-spark s1">✦</span><span class="match-spark s2">✦</span><span class="match-spark s3">✦</span><span class="match-spark s4">✦</span></div>`;
   const celebration = feedback.firstElementChild;
-  later(() => celebration.remove(), 1500);
+  later(() => celebration.remove(), 1700);
 }
 function showExit() {
   if (screen !== 'game' || round?.complete) return;
-  showDialog('Выйти из игры?', `<p>Текущая попытка не сохранится.<br>Вы сможете начать новую игру.</p><div class="exit-actions">${button('Продолжить', 'close', '', 'play')}${button('Выйти', 'home', 'quiet solid', '')}</div>`, () => document.querySelector('[data-action="exit"]')?.focus());
+  showDialog('Выйти из игры?', `<p>Текущая попытка не сохранится.<br>Вы сможете начать новую игру.</p><div class="exit-actions">${button('Продолжить', 'close')}${button('Выйти', 'home', 'quiet solid', 'exit')}</div>`, () => document.querySelector('[data-action="exit"]')?.focus());
 }
 function requestRestart() {
   if (screen === 'game' && round && !round.complete && (round.moves || round.open.length)) {
-    showDialog('Начать заново?', `<p>Текущая попытка не сохранится.<br>Карточки перемешаются, время начнётся с нуля.</p><div class="exit-actions">${button('Продолжить', 'close', '', 'play')}${button('Рестарт', 'restart-now', 'quiet solid', '')}</div>`, () => document.querySelector('[data-action="restart"]')?.focus());
+    showDialog('Начать заново?', `<p>Текущая попытка не сохранится.<br>Карточки перемешаются, время начнётся с нуля.</p><div class="exit-actions">${button('Продолжить', 'close')}${button('Рестарт', 'restart-now', 'quiet solid', 'restart')}</div>`, () => document.querySelector('[data-action="restart"]')?.focus());
   } else { removeModal(); startRound(); }
 }
 function chooseCard(index) {
@@ -263,9 +271,9 @@ function showResult(rows) {
   const time = formatTime(round.elapsed);
   openModal(`<section class="result-modal" role="dialog" aria-modal="true" aria-labelledby="result-title">
     <div class="result-left"><div class="result-hero"><h2 id="result-title">Вы прошли<br>игру!</h2>${victoryMedal()}</div>
-    <div class="result-time"><p>Ваше время</p><strong class="${time.length > 5 ? 'long-time' : ''}">${time}</strong><div class="result-message">${icon(eligible ? 'gift' : 'star')}<p>${eligible ? `Ваш подарок уже ждёт вас<br>${esc(CONFIG.giftLocation)}` : 'Попробуйте ещё раз<br>и уложитесь в 45 секунд'}</p></div></div></div>
+    <div class="result-time"><p>Ваше время</p><strong class="${time.length > 5 ? 'long-time' : ''}">${time}</strong><div class="result-message"><p>${eligible ? `Ваш подарок уже ждёт вас<br>${esc(CONFIG.giftLocation)}` : 'Попробуйте ещё раз<br>и уложитесь в 45 секунд'}</p></div></div></div>
     <div class="result-leaders"><h2>Топ-3 игроков</h2>${closeButton()}<div class="leader-labels"><span>Имя</span><span>Время</span></div><div class="leader-list compact-leaders" role="list" aria-label="Топ-3 игроков">${rankingCards(rows, {slots:3, currentId:player?.id})}</div></div>
-    <div class="result-actions">${button('На главную', 'home', 'quiet solid', '')}${button('Рестарт', 'restart', '', 'restart-large')}</div>${victoryConfetti()}
+    <div class="result-actions">${button('На главную', 'home', 'quiet solid', 'back')}${button('Рестарт', 'restart', '', 'restart')}</div>${victoryConfetti()}
   </section>`, showHome);
   later(() => document.querySelector('.victory-confetti')?.remove(), 4400);
 }
@@ -274,7 +282,7 @@ async function showRank() {
   try {
     const rows = leaderboard(await readStore('attempts'), CONFIG.eventId);
     if (current !== generation) return;
-    openModal(`<section class="rank-modal" role="dialog" aria-modal="true" aria-labelledby="rank-title"><div class="rank-panel"><header class="rank-heading">${icon('star')}<div><h2 id="rank-title">Статистика</h2><p>Самые быстрые</p></div></header>${closeButton()}<div class="leader-list full-leaders ${rows.length ? '' : 'is-empty'}" role="list" aria-label="Рейтинг игроков">${rankingCards(rows, {slots:10, currentId:player?.id})}</div></div>${button('Начать игру', 'rules', '', 'arrow-large')}</section>`, () => document.querySelector('[data-action="rank"]')?.focus());
+    openModal(`<section class="rank-modal" role="dialog" aria-modal="true" aria-labelledby="rank-title"><div class="rank-panel"><header class="rank-heading"><h2 id="rank-title">Самые быстрые</h2></header>${closeButton()}<div class="leader-list full-leaders ${rows.length ? '' : 'is-empty'}" role="list" aria-label="Рейтинг игроков">${rankingCards(rows, {slots:10, currentId:player?.id})}</div></div>${button('Играть', 'rules')}</section>`, () => document.querySelector('[data-action="rank"]')?.focus());
   } catch { showDialog('Не удалось открыть рейтинг', '<p>Обновите страницу и попробуйте ещё раз.</p>'); }
 }
 
@@ -343,7 +351,7 @@ async function exportData(format) {
   } catch { showDialog('Не удалось выгрузить результаты', '<p>Попробуйте ещё раз.</p>'); }
 }
 async function preload() {
-  const paths = [...PRODUCTS.map(p => `products/${p.id}.png`), 'logo.svg','play.svg','arrow.svg','restart.svg','restart-large.svg','close.svg','card-rim.svg','card-face.svg','card-stage.svg','hero-rim.svg','hero-face.svg','hero-stage.svg','arrow-large.svg'];
+  const paths = [...PRODUCTS.map(p => `products/${p.id}.png`), 'logo.svg','card-rim.svg','card-face.svg','card-stage.svg','hero-rim.svg','hero-face.svg','hero-stage.svg'];
   await Promise.all(paths.map(path => new Promise((resolve,reject) => { const img = new Image(); img.onload = resolve; img.onerror = () => reject(new Error(path)); img.src = './assets/' + path; })));
   await document.fonts.ready;
 }
