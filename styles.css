@@ -213,12 +213,14 @@
 .time-tile{left:auto;right:72px;padding:0 24px;display:flex;justify-content:space-between;align-items:center;gap:24px}
 .time-tile>span,.time-tile output{position:static}.time-tile output{margin-left:auto;text-align:right}
 .board{right:72px;bottom:192px;width:auto;height:auto;grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr))}
-.card-slot{position:relative;min-width:0;min-height:0}.board .card{width:100%;height:100%;perspective:900px;background:none}
-.board .card-inner{transform:rotateY(0deg);transform-style:preserve-3d;transition:transform .32s cubic-bezier(.3,.7,.3,1);will-change:transform}
-.board .card.flipped .card-inner{transform:rotateY(180deg)}
-.board .card-back,.board .card-front{opacity:1;backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:none}
-.board .card-back{transform:translateZ(.1px)}
-.board .card-front{transform:rotateY(180deg) translateZ(.1px);pointer-events:none}
+.card-slot{position:relative;min-width:0;min-height:0}.board .card{width:100%;height:100%;perspective:none;background:none}
+/* Each face owns its perspective, avoiding nested 3D paint loss in Chromium. */
+.board .card-inner,.board .card.flipped .card-inner{transform:none;transform-style:flat;transition:none}
+.board .card-back,.board .card-front{opacity:1;backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:transform .32s cubic-bezier(.3,.7,.3,1);will-change:transform}
+.board .card-back{transform:perspective(900px) rotateY(0deg)}
+.board .card-front{transform:perspective(900px) rotateY(180deg);pointer-events:none}
+.board .card.flipped .card-back{transform:perspective(900px) rotateY(-180deg)}
+.board .card.flipped .card-front{transform:perspective(900px) rotateY(0deg)}
 .board .card-rim{left:calc(50% - 92px);top:calc(50% - 90px)}.board .card-token{left:calc(50% - 70px);top:calc(50% - 78px)}
 .board .question{left:calc(50% - 70px);top:calc(50% - 71px)}
 .board .product-stage,.board .matched .product-stage{left:calc(50% - 86px);top:calc(50% - 96px)}
