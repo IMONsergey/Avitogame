@@ -11,7 +11,7 @@ const timeouts = new Set();
 const form = { firstName: '', lastName: '', phone: '' };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 const image = (name, cls = '', alt = '') => `<img class="${cls}" src="./assets/${name}" alt="${esc(alt)}" draggable="false">`;
-const button = (label, action, classes = '', icon = 'arrow', disabled = false) => `<button class="action ${classes}" data-action="${action}" ${disabled ? 'disabled' : ''}><span>${label}</span>${icon ? `<span class="action-disc">${image(icon + '.svg')}</span>` : ''}</button>`;
+const button = (label, action, classes = '', icon = 'arrow', disabled = false) => `<button type="button" class="action ${classes}" data-action="${action}" ${disabled ? 'disabled' : ''}><span>${label}</span>${icon ? `<span class="action-disc">${image(icon + '.svg')}</span>` : ''}</button>`;
 const closeButton = () => `<button class="close" data-action="close" aria-label="Закрыть">${image('close.svg')}</button>`;
 function later(callback, ms) { const current = generation; const id = setTimeout(() => { timeouts.delete(id); if (current === generation) callback(); }, ms); timeouts.add(id); }
 function cancelPending() { generation++; for (const id of timeouts) clearTimeout(id); timeouts.clear(); cancelAnimationFrame(animationFrame); }
@@ -19,18 +19,18 @@ function say(message) { announce.textContent = message; }
 function resize() { stage.style.setProperty('--scale', Math.min(innerWidth / 1920, innerHeight / 1080)); }
 addEventListener('resize', resize); resize();
 
-function backFace() {
-  return `<span class="card-back"><span class="card-surface">${image('card-rim.svg', 'card-rim')}${image('card-face.svg', 'card-token')}<span class="question">?</span></span></span>`;
+function backFace(hero = false) {
+  return `<span class="card-back"><span class="card-surface">${image(hero ? 'hero-rim.svg' : 'card-rim.svg', 'card-rim')}${image(hero ? 'hero-face.svg' : 'card-face.svg', 'card-token')}<span class="question">?</span></span></span>`;
 }
-function frontFace(product) {
-  return `<span class="card-front"><span class="card-surface">${image('card-stage.svg', 'product-stage')}${image('products/' + product + '.png', 'product')}</span></span>`;
+function frontFace(product, hero = false) {
+  return `<span class="card-front"><span class="card-surface">${image(hero ? 'hero-stage.svg' : 'card-stage.svg', 'product-stage')}${image('products/' + product + '.png', 'product')}</span></span>`;
 }
 function homeMarkup() {
   return `<section class="screen start-screen" aria-label="Найди пару">
     ${image('logo.svg', 'brand', 'Авито')}
     <div class="start-grid"><div class="start-left"><div class="title-tile"><h1>Найди<br>пару</h1><span class="underline"></span></div>
       ${button('Начать игру', 'rules', 'start-action', 'play')}${button('Рейтинг', 'rank', 'quiet', '')}</div>
-      <div class="hero-art" aria-hidden="true"><div class="hero-hidden"><div class="card static">${backFace()}</div></div><div class="hero-revealed"><div class="card static matched flipped">${frontFace('headphones')}</div></div></div>
+      <div class="hero-art" aria-hidden="true"><div class="hero-hidden"><div class="card static">${backFace(true)}</div></div><div class="hero-revealed"><div class="card static matched flipped">${frontFace('headphones', true)}</div></div></div>
     </div></section>`;
 }
 function showHome() {
@@ -214,7 +214,7 @@ async function showRank() {
   try {
     const rows = leaderboard(await readStore('attempts'), CONFIG.eventId);
     if (current !== generation) return;
-    openModal(`<section class="rank-modal" role="dialog" aria-modal="true" aria-labelledby="rank-title"><div class="rank-panel"><h2 id="rank-title">Статистика</h2><p class="rank-subtitle">Самые быстрые</p>${closeButton()}<div class="rank-table" role="table" aria-label="Рейтинг игроков"><div class="ranking-head"><span>Имя</span><span>Время</span></div><div class="ranking-scroll" tabindex="0">${tableRows(rows)}</div></div></div>${button('Начать игру', 'rules')}</section>`, () => document.querySelector('[data-action="rank"]')?.focus());
+    openModal(`<section class="rank-modal" role="dialog" aria-modal="true" aria-labelledby="rank-title"><div class="rank-panel"><h2 id="rank-title">Статистика</h2><p class="rank-subtitle">Самые быстрые</p>${closeButton()}<div class="rank-table" role="table" aria-label="Рейтинг игроков"><div class="ranking-head"><span>Имя</span><span>Время</span></div><div class="ranking-scroll" tabindex="0">${tableRows(rows)}</div></div></div>${button('Начать игру', 'rules', '', 'arrow-large')}</section>`, () => document.querySelector('[data-action="rank"]')?.focus());
   } catch { showDialog('Не удалось открыть рейтинг', '<p>Обновите страницу и попробуйте ещё раз.</p>'); }
 }
 function showDialog(title, body, onClose = () => {}) {
@@ -280,7 +280,7 @@ async function exportData(format) {
   } catch { showDialog('Не удалось выгрузить результаты', '<p>Попробуйте ещё раз.</p>'); }
 }
 async function preload() {
-  const paths = [...PRODUCTS.map(p => `products/${p.id}.png`), 'logo.svg','play.svg','arrow.svg','restart.svg','restart-large.svg','close.svg','card-rim.svg','card-face.svg','card-stage.svg'];
+  const paths = [...PRODUCTS.map(p => `products/${p.id}.png`), 'logo.svg','play.svg','arrow.svg','restart.svg','restart-large.svg','close.svg','card-rim.svg','card-face.svg','card-stage.svg','hero-rim.svg','hero-face.svg','hero-stage.svg','arrow-large.svg'];
   await Promise.all(paths.map(path => new Promise((resolve,reject) => { const img = new Image(); img.onload = resolve; img.onerror = () => reject(new Error(path)); img.src = './assets/' + path; })));
   await document.fonts.ready;
 }
