@@ -122,6 +122,7 @@
 .victory-confetti{position:absolute;inset:-72px;pointer-events:none;overflow:hidden;z-index:4}
 .victory-confetti i{position:absolute;left:var(--x);top:-80px;width:var(--size);height:calc(var(--size)*.65);border-radius:4px;background:var(--confetti);animation:confetti-fall var(--duration) var(--delay) cubic-bezier(.18,.6,.4,1) both;will-change:transform,opacity}
 .victory-confetti i:nth-child(3n){border-radius:50%;height:var(--size)}.victory-confetti i:nth-child(5n){clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);height:var(--size);width:calc(var(--size)*1.4)}
+.overlay>[role=dialog]:focus{outline:0}
 .overlay>.result-modal{animation:celebrate-enter .55s cubic-bezier(.16,.9,.3,1.2) backwards}
 @keyframes celebrate-enter{from{opacity:0;transform:translateY(44px) scale(.92)}to{opacity:1;transform:none}}
 @keyframes result-title-in{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}

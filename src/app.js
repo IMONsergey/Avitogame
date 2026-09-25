@@ -249,7 +249,8 @@ function openModal(markup, onClose) {
   const base = stage.querySelector('.screen'); if (base) { base.inert = true; base.setAttribute('aria-hidden', 'true'); }
   stage.insertAdjacentHTML('beforeend', `<div class="overlay">${markup}</div>`);
   modalClose = onClose;
-  const focus = stage.querySelector('.overlay button'); focus?.focus({ preventScroll: true });
+  const dialog = stage.querySelector('.overlay [role="dialog"]');
+  if (dialog) { dialog.tabIndex = -1; dialog.focus({ preventScroll: true }); }
 }
 function removeModal() {
   stage.querySelector('.overlay')?.remove();
@@ -319,7 +320,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Tab' && modalClose) {
     const focusable = [...document.querySelectorAll('.overlay button:not(:disabled), .overlay [tabindex="0"]')];
     const first = focusable[0], last = focusable.at(-1);
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); }
+    if (e.shiftKey && (document.activeElement === first || !focusable.includes(document.activeElement))) { e.preventDefault(); last?.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
   }
 });
