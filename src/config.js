@@ -1,6 +1,6 @@
 // Content and event settings. Keep this file separate from game mechanics.
 export const CONFIG = Object.freeze({
-  version: '1.4.0',
+  version: '1.4.1',
   eventId: 'avito-pairs-2026',
   giftTimeMs: 45_000,
   giftLocation: 'на стенде М2',

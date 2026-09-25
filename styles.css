@@ -170,7 +170,21 @@
 .start-grid{right:72px;bottom:72px;width:auto;height:auto;grid-template-columns:repeat(2,minmax(0,1fr))}
 .start-left{grid-template-rows:minmax(416px,1fr) 176px 176px}
 .underline{background:linear-gradient(90deg,var(--green),rgba(4,224,97,.2))}
-.hero-hidden{left:12%;top:13%}.hero-revealed{left:37%;top:55%}
+/* Start preview spans the same 72 px top/bottom grid as the full screen. */
+.hero-art{margin-top:-120px;isolation:isolate;background:var(--lilac)}
+.hero-art:before{content:'';position:absolute;inset:-12%;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 22% 18%,rgba(255,255,255,.68),transparent 52%),radial-gradient(ellipse at 82% 82%,rgba(201,255,191,.62),transparent 58%);animation:hero-light 14s ease-in-out infinite alternate}
+.hero-hidden{left:12%;top:18%;transform:rotate(12deg);transform-origin:center;filter:drop-shadow(0 24px 20px rgba(0,57,20,.16))}
+.hero-revealed{left:36%;top:53%;transform:rotate(-10deg);transform-origin:center;filter:drop-shadow(0 28px 22px rgba(0,57,20,.18))}
+.hero-art .hero-hidden .card-surface{border-radius:39.304px}
+.hero-art .product-stage{left:88.43px;top:22.93px}
+.hero-art .card-front .card-surface{background:var(--mint);border:2px solid rgba(255,255,255,.72)}
+.hero-art .hero-hidden .card-inner{animation:hero-demo-flip 9s cubic-bezier(.4,0,.2,1) infinite;transform-style:preserve-3d}
+.hero-art .hero-hidden .card-back{transform:translateZ(.1px)}
+.hero-art .hero-hidden .card-front{transform:rotateY(180deg) translateZ(.1px)}
+.hero-art .card-front:after{content:'';position:absolute;inset:-4px;border:3px solid rgba(255,255,255,.9);border-radius:43px;box-shadow:0 0 36px rgba(201,255,191,.8);pointer-events:none;opacity:0;animation:hero-pair-glow 9s ease-out infinite}
+@keyframes hero-demo-flip{0%,24%,84%,100%{transform:rotateY(0deg)}32%,76%{transform:rotateY(180deg)}}
+@keyframes hero-pair-glow{0%,33%,64%,100%{opacity:0;scale:1}40%,48%{opacity:1;scale:1.025}60%{opacity:0;scale:1.045}}
+@keyframes hero-light{from{transform:translate(-2%,-2%) scale(1)}to{transform:translate(3%,3%) scale(1.04)}}
 .rules-grid{right:72px;bottom:256px;width:auto;height:auto;grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:minmax(264px,.434fr) minmax(344px,.566fr)}
 .rule-symbol{position:absolute;right:32px;top:28px;width:112px;height:112px;display:grid;place-items:center;background:rgba(255,255,255,.48);border-radius:36px;color:var(--dark)}
 .rule-symbol .ui-icon{width:76px;height:76px;stroke-width:3.5}.rule-register .rule-symbol{background:var(--mint)}

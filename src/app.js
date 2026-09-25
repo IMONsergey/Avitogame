@@ -46,7 +46,7 @@ function homeMarkup() {
     ${image('logo.svg', 'brand', 'Авито')}
     <div class="start-grid"><div class="start-left"><div class="title-tile"><h1>Найди<br>пару</h1><span class="underline"></span></div>
       ${button('Играть', 'rules', 'start-action')}${button('Рейтинг', 'rank', 'quiet', 'trophy')}</div>
-      <div class="hero-art" aria-hidden="true"><div class="hero-hidden"><div class="card static">${backFace(true)}</div></div><div class="hero-revealed"><div class="card static matched flipped">${frontFace('headphones', true)}</div></div></div>
+      <div class="hero-art" aria-hidden="true"><div class="hero-hidden"><div class="card static"><span class="card-inner">${backFace(true)}${frontFace('headphones', true)}</span></div></div><div class="hero-revealed"><div class="card static matched flipped">${frontFace('headphones', true)}</div></div></div>
     </div></section>`;
 }
 function showHome() {
