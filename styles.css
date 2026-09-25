@@ -149,7 +149,7 @@
 /* v1.3 — Events B2B gradient, fluid installation canvas, shared touch controls. */
 :root{--gutter:72px;--gap:24px;--radius:32px;--control-radius:24px}
 /* Events nodes 12660:1601 / 12660:1645: only dark green → brand green. */
-#viewport{background:var(--dark);isolation:isolate}
+#viewport{background:var(--dark);isolation:isolate;overflow:clip}
 #viewport:before,#viewport:after{content:'';position:absolute;pointer-events:none;z-index:-1;will-change:transform}
 #viewport:before{inset:-22%;background:linear-gradient(44deg,#003914 33.206%,#04e061 151.13%);animation:ambient-drift 22s ease-in-out infinite alternate}
 #viewport:after{inset:-35%;background:radial-gradient(ellipse at 82% 28%,rgba(4,224,97,.22),rgba(4,224,97,0) 50%);animation:ambient-glow 18s ease-in-out infinite alternate}
@@ -210,7 +210,7 @@
 .board .card:active{filter:none}.board .card:active:not(.flipped){transform:none;translate:0 3px}
 .board .card-front .card-surface{box-shadow:inset 0 2px 0 rgba(255,255,255,.6),inset 0 -8px 0 var(--dark8)}
 .game-control{position:absolute;top:auto;bottom:72px;width:426px;height:96px;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 32px 4px;border:2px solid var(--white24);border-radius:24px;background:var(--white8);font-size:36px;line-height:44px;font-weight:500;box-shadow:inset 0 -4px 0 var(--dark8);transition:translate .12s,background .12s}
-.game-control .ui-icon{width:48px;height:48px}.game-control:active{transform:none;translate:0 3px;background:var(--white24)}
+.game-control{letter-spacing:-.02em}.game-control .ui-icon{width:48px;height:48px}.game-control:active{transform:none;translate:0 3px;background:var(--white24)}
 .game-exit{left:72px;right:auto}.restart{left:auto;right:72px}
 /* More pronounced celebration, with every effect ignoring touch input. */
 .match-feedback{left:50%;top:auto;bottom:18px;width:672px;height:164px;transform:translateX(-50%)}
