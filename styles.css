@@ -214,7 +214,7 @@
 .time-tile>span,.time-tile output{position:static}.time-tile output{margin-left:auto;text-align:right}
 .board{right:72px;bottom:192px;width:auto;height:auto;grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr))}
 .card-slot{position:relative;min-width:0;min-height:0}.board .card{width:100%;height:100%;perspective:900px;background:none}
-.board .card-inner{transform:rotateY(0deg);transform-style:preserve-3d;transition:transform .32s cubic-bezier(.3,.7,.3,1)}
+.board .card-inner{transform:rotateY(0deg);transform-style:preserve-3d;transition:transform .32s cubic-bezier(.3,.7,.3,1);will-change:transform}
 .board .card.flipped .card-inner{transform:rotateY(180deg)}
 .board .card-back,.board .card-front{opacity:1;backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:none}
 .board .card-back{transform:translateZ(.1px)}
