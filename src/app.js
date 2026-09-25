@@ -46,7 +46,7 @@ function homeMarkup() {
     ${image('logo.svg', 'brand', 'Авито')}
     <div class="start-grid"><div class="start-left"><div class="title-tile"><h1>Найди<br>пару</h1><span class="underline"></span></div>
       ${button('Играть', 'rules', 'start-action')}${button('Рейтинг', 'rank', 'quiet', 'trophy')}</div>
-      <div class="hero-art" aria-hidden="true"><div class="hero-hidden"><div class="card static"><span class="card-inner">${backFace(true)}${frontFace('headphones', true)}</span></div></div><div class="hero-revealed"><div class="card static matched flipped">${frontFace('headphones', true)}</div></div></div>
+      <div class="hero-art" aria-hidden="true"><div class="hero-hidden"><div class="card static"><span class="card-inner">${backFace(true)}${frontFace('home-armchair', true)}</span></div></div><div class="hero-revealed"><div class="card static matched flipped">${frontFace('home-armchair', true)}</div></div></div>
     </div></section>`;
 }
 function showHome() {
@@ -59,7 +59,7 @@ function showRules() {
   stage.innerHTML = `<section class="screen rules-screen" aria-labelledby="rules-title"><h1 id="rules-title" class="screen-title">${copy('Вы в игре «Найди пару»')}</h1>${backButton('home')}
   <ol class="rules-grid">
     <li class="rule-register"><span class="rule-number">1</span><div class="rule-symbol">${icon('registration')}</div><p>Зарегистрируйтесь<br>${copy('в игре')}</p></li>
-    <li class="rule-pairs"><span class="rule-number">2</span><p>Переворачивайте карточки<br>${copy('и находите пары')}</p><div class="rule-pair-art" aria-hidden="true"><div class="rule-mini-card first">${image('products/headphones.png')}</div><div class="rule-mini-card second">${image('products/headphones.png')}</div></div></li>
+    <li class="rule-pairs"><span class="rule-number">2</span><p>Переворачивайте карточки<br>${copy('и находите пары')}</p><div class="rule-pair-art" aria-hidden="true"><div class="rule-mini-card first">${image(productPath('home-armchair'))}</div><div class="rule-mini-card second">${image(productPath('home-armchair'))}</div></div></li>
     <li class="rule-speed"><span class="rule-number">3</span><p>${copy('Уложитесь в 45 секунд')}<br>${copy('и получите подарок')}</p><div class="rule-symbol">${icon('gift')}</div></li>
     <li class="rule-prize"><span class="rule-number">4</span><p>${copy('Попадите в топ-10,')}<br>чтобы стать обладателем<br>суперприза</p><div class="rule-symbol">${icon('trophy')}</div></li>
   </ol><div class="rules-footer"><p>${copy('Количество попыток не ограничено')}<br><span>Удачи!</span></p></div>${button('Далее', 'register', 'rules-next')}</section>`;

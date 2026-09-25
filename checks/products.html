@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>18 товаров для дома · Проверка изображений</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+.catalogue-title{position:absolute;left:72px;top:60px;font-size:64px;line-height:76px}
+.catalogue-subtitle{position:absolute;left:72px;bottom:56px;font-size:28px;color:var(--white64)}
+.board{top:172px;bottom:136px;row-gap:56px}
+.product-label{position:absolute;left:0;right:0;top:calc(100% + 10px);font-size:24px;line-height:28px;text-align:center;color:white}
+.catalogue-back{position:absolute;right:72px;top:60px;padding:16px 28px;border:2px solid var(--white24);border-radius:20px;font-size:28px}
+</style>
+<main id="viewport"><div id="stage"><h1 class="catalogue-title">18 товаров для дома</h1><a class="catalogue-back" href="../">К игре</a><div class="board" role="list" aria-label="Все изображения товаров"></div><p class="catalogue-subtitle">Обзор набора · В игре случайно выбираются 9 пар</p></div></main>
+<script type="module">
+import {PRODUCTS,PAIR_COLORS} from '../src/config.js';
+import {canvasMetrics} from '../src/layout.js';
+const stage=document.querySelector('#stage');
+document.querySelector('.board').innerHTML=PRODUCTS.map((p,i)=>`<div class="card-slot" role="listitem" style="--deal:0"><div class="card static flipped"><span class="card-inner"><span class="card-front" style="--pair-color:${PAIR_COLORS[i%PAIR_COLORS.length]}"><span class="card-surface"><img class="product-stage" src="../assets/card-stage.svg" alt=""><img class="product" src="../assets/products/${p.id}.${p.extension}" alt="${p.label}"></span></span></span></div><span class="product-label">${p.label}</span></div>`).join('');
+function resize(){const c=canvasMetrics(innerWidth,innerHeight);stage.style.setProperty('--scale',c.scale);stage.style.setProperty('--canvas-width',`${c.width}px`);stage.style.setProperty('--canvas-height',`${c.height}px`);}
+addEventListener('resize',resize);resize();
+</script>
+</html>
