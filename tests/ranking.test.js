@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rankingCards } from '../src/ranking.js';
+import { rankingCards, fullRankingList } from '../src/ranking.js';
+import { leaderboard } from '../src/engine.js';
 import { PAIR_COLORS } from '../src/config.js';
 
 const result = (n, overrides = {}) => ({playerId:`p${n}`,firstName:'Анна',lastName:'Иванова',durationMs:43200+n, ...overrides});
@@ -33,4 +34,15 @@ test('a full top ten retains rank order, long names and long times', () => {
 test('stored names cannot inject markup into ranking content or accessibility labels', () => {
   const html=rankingCards([result(1,{firstName:'<img src=x>',lastName:'" onclick="alert(1)'})]);
   assert.doesNotMatch(html,/<img| onclick="alert/);assert.match(html,/&lt;img src=x&gt;/);assert.match(html,/&quot;/);
+});
+test('full ranking retains every player beyond tenth place and their best attempt; result preview stays top three', () => {
+  const attempts=Array.from({length:127},(_,i)=>({...result(i),id:`a${i}`,eventId:'e',finishedAt:i}));
+  attempts.push({...attempts[126],id:'better',durationMs:1000});
+  const rows=leaderboard(attempts,'e',Infinity);
+  assert.equal(rows.length,127);assert.equal(rows[0].playerId,'p126');
+  const html=fullRankingList(rows,'p125');
+  assert.equal((html.match(/role="listitem"/g)||[]).length,127);
+  assert.match(html,/place-127 current/);assert.match(html,/leader-place long-place/);
+  assert.match(html,/tabindex="0"/);assert.doesNotMatch(html,/vacant/);
+  assert.equal((rankingCards(rows,{slots:3}).match(/role="listitem"/g)||[]).length,3);
 });

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Проверка прокрутки · 50 тестовых участников</title>
+<link rel="stylesheet" href="../styles.css">
+<main id="viewport"><div id="stage"></div></main>
+<div style="position:fixed;left:16px;bottom:8px;font:14px system-ui;color:white;pointer-events:none">Тестовый список · 50 участников · данные не сохраняются</div>
+<script type="module">
+import {fullRankingList} from '../src/ranking.js';
+import {icon} from '../src/icons.js';
+import {canvasMetrics} from '../src/layout.js';
+const stage=document.querySelector('#stage');
+const rows=Array.from({length:50},(_,i)=>({playerId:`test-${i}`,firstName:'Участник',lastName:`Тестовый ${i+1}`,durationMs:30000+i*1400}));
+stage.innerHTML=`<div class="overlay"><section class="rank-modal" role="dialog" aria-labelledby="rank-title"><div class="rank-panel"><header class="rank-heading"><h2 id="rank-title">Самые быстрые</h2></header><a class="close" href="../" aria-label="Закрыть">${icon('close')}</a>${fullRankingList(rows,'test-36')}</div><a class="action" href="../"><span>К игре</span><span class="action-disc">${icon('arrow')}</span></a></section></div>`;
+function fit(){const c=canvasMetrics(innerWidth,innerHeight);stage.style.setProperty('--scale',c.scale);stage.style.setProperty('--canvas-width',`${c.width}px`);stage.style.setProperty('--canvas-height',`${c.height}px`);}
+addEventListener('resize',fit);fit();
+</script>
+</html>

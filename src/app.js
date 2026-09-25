@@ -1,7 +1,7 @@
 import { CONFIG, PRODUCTS } from './config.js';
 import { Round, createDeck, normalizeName, validName, editPhone, formatPhone, validPhone, formatTime, leaderboard, csvCell } from './engine.js';
 import { typograph } from './typography.js';
-import { rankingCards } from './ranking.js';
+import { rankingCards, fullRankingList } from './ranking.js';
 import { icon, iconPaths } from './icons.js';
 import { canvasMetrics } from './layout.js';
 import { openDatabase, registerPlayer, saveAttempt, readStore, allData } from './storage.js';
@@ -277,9 +277,9 @@ function showResult(rows) {
 async function showRank() {
   const current = generation;
   try {
-    const rows = leaderboard(await readStore('attempts'), CONFIG.eventId);
+    const rows = leaderboard(await readStore('attempts'), CONFIG.eventId, Infinity);
     if (current !== generation) return;
-    openModal(`<section class="rank-modal" role="dialog" aria-modal="true" aria-labelledby="rank-title"><div class="rank-panel"><header class="rank-heading"><h2 id="rank-title">Самые быстрые</h2></header>${closeButton()}<div class="leader-list full-leaders ${rows.length ? '' : 'is-empty'}" role="list" aria-label="Рейтинг игроков">${rankingCards(rows, {slots:10, currentId:player?.id})}</div></div>${button('Играть', 'rules')}</section>`, () => document.querySelector('[data-action="rank"]')?.focus());
+    openModal(`<section class="rank-modal" role="dialog" aria-modal="true" aria-labelledby="rank-title"><div class="rank-panel"><header class="rank-heading"><h2 id="rank-title">Самые быстрые</h2></header>${closeButton()}${fullRankingList(rows, player?.id)}</div>${button('Играть', 'rules')}</section>`, () => document.querySelector('[data-action="rank"]')?.focus());
   } catch { showDialog('Не удалось открыть рейтинг', '<p>Обновите страницу и попробуйте ещё раз.</p>'); }
 }
 
@@ -293,6 +293,7 @@ function showLegal(which) {
   showDialog('Документ недоступен', '<p>Документ мероприятия пока не добавлен.<br>Обратитесь к организатору.</p>', () => document.querySelector('#firstName')?.focus({ preventScroll: true }));
 }
 
+stage.addEventListener('scroll', () => { lastActivity = Date.now(); }, { capture:true, passive:true });
 stage.addEventListener('pointerdown', e => {
   lastActivity = Date.now();
   if (e.target.closest('[data-key]')) e.preventDefault();
