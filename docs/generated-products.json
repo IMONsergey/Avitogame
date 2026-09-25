@@ -1,0 +1,69 @@
+{
+  "generator": "Built-in image_gen, nine individual generations",
+  "format": "512 × 512 WebP, transparent alpha, quality 90",
+  "items": [
+    {
+      "id": "chair",
+      "label": "Кресло",
+      "subject": "one elegant soft lilac upholstered lounge armchair, plump rounded back and seat, four short pale wooden legs",
+      "prompt": "Use case: product-mockup. Asset type: ONE individual cutout product for a premium Avito memory card game, square 1024x1024 composition. Subject: one elegant soft lilac upholstered lounge armchair, plump rounded back and seat, four short pale wooden legs. Style: polished realistic 3D catalogue product render, softly rounded tangible materials, subtle satin finish, gentle studio highlights, believable product construction, pale blue/lilac/green accents. Front three-quarter view from slightly above. Entire single object centered, fills about 84 percent of square, no clipping, clear readable silhouette at 150 pixels. Isolated on genuinely transparent background, soft ambient shading on object only. No cast floor or pedestal, no scenery, no cards or UI, no lettering, no logo, no watermark, no extra objects. This is asset chair in a cohesive nine-object set.",
+      "path": "assets/products/chair.webp"
+    },
+    {
+      "id": "toaster",
+      "label": "Тостер",
+      "subject": "one mint green and polished silver retro two-slot toaster, two visible empty slots on top, small lever and circular dial",
+      "prompt": "Use case: product-mockup. Asset type: ONE individual cutout product for a premium Avito memory card game, square 1024x1024 composition. Subject: one mint green and polished silver retro two-slot toaster, two visible empty slots on top, small lever and circular dial. Style: polished realistic 3D catalogue product render, softly rounded tangible materials, subtle satin finish, gentle studio highlights, believable product construction, pale blue/lilac/green accents. Front three-quarter view from slightly above. Entire single object centered, fills about 84 percent of square, no clipping, clear readable silhouette at 150 pixels. Isolated on genuinely transparent background, soft ambient shading on object only. No cast floor or pedestal, no scenery, no cards or UI, no lettering, no logo, no watermark, no extra objects. This is asset toaster in a cohesive nine-object set.",
+      "path": "assets/products/toaster.webp"
+    },
+    {
+      "id": "gamepad",
+      "label": "Геймпад",
+      "subject": "one pale blue wireless game controller, two dark charcoal analog sticks, simple dark directional pad and four lilac buttons, ergonomic recognizable silhouette",
+      "prompt": "Use case: product-mockup. Asset type: ONE individual cutout product for a premium Avito memory card game, square 1024x1024 composition. Subject: one pale blue wireless game controller, two dark charcoal analog sticks, simple dark directional pad and four lilac buttons, ergonomic recognizable silhouette. Style: polished realistic 3D catalogue product render, softly rounded tangible materials, subtle satin finish, gentle studio highlights, believable product construction, pale blue/lilac/green accents. Front three-quarter view from slightly above. Entire single object centered, fills about 84 percent of square, no clipping, clear readable silhouette at 150 pixels. Isolated on genuinely transparent background, soft ambient shading on object only. No cast floor or pedestal, no scenery, no cards or UI, no lettering, no logo, no watermark, no extra objects. This is asset gamepad in a cohesive nine-object set.",
+      "path": "assets/products/gamepad.webp"
+    },
+    {
+      "id": "suitcase",
+      "label": "Чемодан",
+      "subject": "one lavender hard shell travel suitcase with vertical rounded ribs, black short pull handle extended slightly, four small black wheels",
+      "prompt": "Use case: product-mockup. Asset type: ONE individual cutout product for a premium Avito memory card game, square 1024x1024 composition. Subject: one lavender hard shell travel suitcase with vertical rounded ribs, black short pull handle extended slightly, four small black wheels. Style: polished realistic 3D catalogue product render, softly rounded tangible materials, subtle satin finish, gentle studio highlights, believable product construction, pale blue/lilac/green accents. Front three-quarter view from slightly above. Entire single object centered, fills about 84 percent of square, no clipping, clear readable silhouette at 150 pixels. Isolated on genuinely transparent background, soft ambient shading on object only. No cast floor or pedestal, no scenery, no cards or UI, no lettering, no logo, no watermark, no extra objects. This is asset suitcase in a cohesive nine-object set.",
+      "path": "assets/products/suitcase.webp"
+    },
+    {
+      "id": "bicycle",
+      "label": "Велосипед",
+      "subject": "one sky blue city bicycle, full complete bicycle with two equal wheels, black tires, silver spokes, simple frame, brown saddle and grips, no basket",
+      "prompt": "Use case: product-mockup. Asset type: ONE individual cutout product for a premium Avito memory card game, square 1024x1024 composition. Subject: one sky blue city bicycle, full complete bicycle with two equal wheels, black tires, silver spokes, simple frame, brown saddle and grips, no basket. Style: polished realistic 3D catalogue product render, softly rounded tangible materials, subtle satin finish, gentle studio highlights, believable product construction, pale blue/lilac/green accents. Front three-quarter view from slightly above. Entire single object centered, fills about 84 percent of square, no clipping, clear readable silhouette at 150 pixels. Isolated on genuinely transparent background, soft ambient shading on object only. No cast floor or pedestal, no scenery, no cards or UI, no lettering, no logo, no watermark, no extra objects. This is asset bicycle in a cohesive nine-object set.",
+      "path": "assets/products/bicycle.webp"
+    },
+    {
+      "id": "drill",
+      "label": "Шуруповёрт",
+      "subject": "one cordless power drill in pale blue and graphite, realistic chuck pointing diagonally left, short straight bit, black battery base, compact pistol silhouette",
+      "prompt": "Use case: product-mockup. Asset type: ONE individual cutout product for a premium Avito memory card game, square 1024x1024 composition. Subject: one cordless power drill in pale blue and graphite, realistic chuck pointing diagonally left, short straight bit, black battery base, compact pistol silhouette. Style: polished realistic 3D catalogue product render, softly rounded tangible materials, subtle satin finish, gentle studio highlights, believable product construction, pale blue/lilac/green accents. Front three-quarter view from slightly above. Entire single object centered, fills about 84 percent of square, no clipping, clear readable silhouette at 150 pixels. Isolated on genuinely transparent background, soft ambient shading on object only. No cast floor or pedestal, no scenery, no cards or UI, no lettering, no logo, no watermark, no extra objects. This is asset drill in a cohesive nine-object set.",
+      "path": "assets/products/drill.webp"
+    },
+    {
+      "id": "watch",
+      "label": "Часы",
+      "subject": "one elegant round wristwatch, silver case, clean cream dial with simple hour ticks and two hands, sage green strap curved in a loop, dial facing viewer",
+      "prompt": "Use case: product-mockup. Asset type: ONE individual cutout product for a premium Avito memory card game, square 1024x1024 composition. Subject: one elegant round wristwatch, silver case, clean cream dial with simple hour ticks and two hands, sage green strap curved in a loop, dial facing viewer. Style: polished realistic 3D catalogue product render, softly rounded tangible materials, subtle satin finish, gentle studio highlights, believable product construction, pale blue/lilac/green accents. Front three-quarter view from slightly above. Entire single object centered, fills about 84 percent of square, no clipping, clear readable silhouette at 150 pixels. Isolated on genuinely transparent background, soft ambient shading on object only. No cast floor or pedestal, no scenery, no cards or UI, no lettering, no logo, no watermark, no extra objects. This is asset watch in a cohesive nine-object set.",
+      "path": "assets/products/watch.webp"
+    },
+    {
+      "id": "ball",
+      "label": "Мяч",
+      "subject": "one classic football soccer ball, white and pale sky blue stitched pentagonal panels, realistic smooth leather texture, sphere",
+      "prompt": "Use case: product-mockup. Asset type: ONE individual cutout product for a premium Avito memory card game, square 1024x1024 composition. Subject: one classic football soccer ball, white and pale sky blue stitched pentagonal panels, realistic smooth leather texture, sphere. Style: polished realistic 3D catalogue product render, softly rounded tangible materials, subtle satin finish, gentle studio highlights, believable product construction, pale blue/lilac/green accents. Front three-quarter view from slightly above. Entire single object centered, fills about 84 percent of square, no clipping, clear readable silhouette at 150 pixels. Isolated on genuinely transparent background, soft ambient shading on object only. No cast floor or pedestal, no scenery, no cards or UI, no lettering, no logo, no watermark, no extra objects. This is asset ball in a cohesive nine-object set.",
+      "path": "assets/products/ball.webp"
+    },
+    {
+      "id": "plant",
+      "label": "Растение",
+      "subject": "one small potted rubber plant with six broad glossy sage and deep green oval leaves, short branching stems, simple pale lilac round ceramic pot",
+      "prompt": "Use case: product-mockup. Asset type: ONE individual cutout product for a premium Avito memory card game, square 1024x1024 composition. Subject: one small potted rubber plant with six broad glossy sage and deep green oval leaves, short branching stems, simple pale lilac round ceramic pot. Style: polished realistic 3D catalogue product render, softly rounded tangible materials, subtle satin finish, gentle studio highlights, believable product construction, pale blue/lilac/green accents. Front three-quarter view from slightly above. Entire single object centered, fills about 84 percent of square, no clipping, clear readable silhouette at 150 pixels. Isolated on genuinely transparent background, soft ambient shading on object only. No cast floor or pedestal, no scenery, no cards or UI, no lettering, no logo, no watermark, no extra objects. This is asset plant in a cohesive nine-object set.",
+      "path": "assets/products/plant.webp"
+    }
+  ]
+}

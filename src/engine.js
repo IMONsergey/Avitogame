@@ -1,4 +1,4 @@
-import { PRODUCTS } from './config.js';
+import { PRODUCTS, PAIR_COLORS } from './config.js';
 
 export function randomIndex(limit) {
   // Rejection sampling avoids modulo bias.
@@ -8,15 +8,23 @@ export function randomIndex(limit) {
   return word[0] % limit;
 }
 
-export function createDeck(pick = randomIndex) {
-  const deck = PRODUCTS.flatMap(product => [0, 1].map(copy => ({
-    id: `${product.id}-${copy}`, product: product.id, label: product.label,
-  })));
-  for (let i = deck.length - 1; i > 0; i--) {
+function shuffle(items, pick) {
+  for (let i = items.length - 1; i > 0; i--) {
     const j = pick(i + 1);
-    [deck[i], deck[j]] = [deck[j], deck[i]];
+    [items[i], items[j]] = [items[j], items[i]];
   }
-  return deck;
+  return items;
+}
+
+export function createDeck(pick = randomIndex) {
+  // Sample nine different products, then shuffle their two copies independently.
+  // Each pair keeps one distinct light color for the entire round.
+  const selected = shuffle([...PRODUCTS], pick).slice(0, PAIR_COLORS.length);
+  const deck = selected.flatMap((product, index) => [0, 1].map(copy => ({
+    id: `${product.id}-${copy}`, product: product.id, label: product.label,
+    color: PAIR_COLORS[index],
+  })));
+  return shuffle(deck, pick);
 }
 
 /** Pure rules: the view cannot open a third card or double-score a pair. */
@@ -60,9 +68,25 @@ export function phoneDigits(value) {
   return digits.slice(0, 10);
 }
 export function formatPhone(value) {
-  const d = phoneDigits(value);
-  if (!d) return '';
+  const raw = value.replace(/\D/g, '');
+  const explicit = value.trim().startsWith('+7');
+  // An initial 8 (or 7) is a country prefix, not the first subscriber digit.
+  // A complete ten-digit national number remains valid when pasted.
+  const d = !explicit && /^[78]/.test(raw) && raw.length < 10 ? raw.slice(1) : phoneDigits(value.trim());
+  if (!d) return raw ? '+7' : '';
   return '+7 (' + d.slice(0, 3) + (d.length >= 3 ? ') ' : '') + d.slice(3, 6) + (d.length > 6 ? '-' + d.slice(6, 8) : '') + (d.length > 8 ? '-' + d.slice(8, 10) : '');
+}
+export function editPhone(value, key, start = value.length, end = start) {
+  if ((!value || (start === 0 && end === value.length)) && key !== 'back') return formatPhone(key);
+  const digits = phoneDigits(value);
+  const from = phoneDigits(value.slice(0, start)).length;
+  const to = phoneDigits(value.slice(0, end)).length;
+  if (key === 'back' && !digits) return '';
+  const next = key === 'back'
+    ? digits.slice(0, Math.max(0, from - (start === end ? 1 : 0))) + digits.slice(to)
+    : digits.slice(0, from) + key + digits.slice(to);
+  // Keep the known prefix explicit, so later eights are never stripped.
+  return formatPhone('+7' + next);
 }
 export function validPhone(value) { const d = phoneDigits(value); return /^[3489]\d{9}$/.test(d) && !/^(\d)\1{9}$/.test(d); }
 export function formatTime(ms) {

@@ -1,16 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { rankingCards } from '../src/ranking.js';
-import { PRODUCTS } from '../src/config.js';
+import { PAIR_COLORS } from '../src/config.js';
 
 const result = (n, overrides = {}) => ({playerId:`p${n}`,firstName:'Анна',lastName:'Иванова',durationMs:43200+n, ...overrides});
 test('all nine pairs use unique light Sellers colors or light brand tints', () => {
   const palette=new Set(['#DFCDF3','#BADAFB','#FEEADB','#C9FFBF','#FFFFFF','#EBBFEB','#F7C1C5','#CCEEFF','#CDF9DF']);
-  assert.equal(PRODUCTS.length,9);assert.equal(new Set(PRODUCTS.map(p=>p.color)).size,9);
-  for(const p of PRODUCTS){
-    assert.ok(palette.has(p.color));
-    const channels=p.color.slice(1).match(/../g).map(v=>parseInt(v,16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);
-    assert.ok(channels[0]*.2126+channels[1]*.7152+channels[2]*.0722>.58, `${p.id} must remain light`);
+  assert.equal(PAIR_COLORS.length,9);assert.equal(new Set(PAIR_COLORS).size,9);
+  for(const color of PAIR_COLORS){
+    assert.ok(palette.has(color));
+    const channels=color.slice(1).match(/../g).map(v=>parseInt(v,16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);
+    assert.ok(channels[0]*.2126+channels[1]*.7152+channels[2]*.0722>.58, `${color} must remain light`);
   }
 });
 test('an empty ranking has no fictitious player or score', () => {

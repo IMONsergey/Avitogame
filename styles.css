@@ -135,8 +135,6 @@
 .board .card-front .card-surface{background:var(--pair-color);border:2px solid rgba(255,255,255,.6)}
 .board .matched .card-front .card-surface{background:var(--pair-color);border:2px solid rgba(255,255,255,.6)}
 .board .product-stage,.board .matched .product-stage{left:52px;top:12px;opacity:.65}
-.matched-mark{position:absolute;right:12px;top:12px;width:40px;height:40px;background:var(--dark);color:var(--mint);border-radius:50%;display:grid;place-items:center;opacity:0;transform:scale(.4);transition:opacity .2s,transform .35s cubic-bezier(.2,1.5,.4,1)}
-.matched-mark svg{width:30px;height:30px}.matched .matched-mark{opacity:1;transform:scale(1)}
 .match-flash:after{animation-fill-mode:forwards}
 /* Purposeful motion across the flow, without moving touch targets. */
 .hero-hidden{animation:hero-drift 4.8s ease-in-out infinite alternate}.hero-revealed{animation:hero-drift 5.4s .5s ease-in-out infinite alternate-reverse}
@@ -177,7 +175,7 @@
 .rule-symbol{position:absolute;right:32px;top:28px;width:112px;height:112px;display:grid;place-items:center;background:rgba(255,255,255,.48);border-radius:36px;color:var(--dark)}
 .rule-symbol .ui-icon{width:76px;height:76px;stroke-width:3.5}.rule-register .rule-symbol{background:var(--mint)}
 .rule-speed p,.rule-prize p{max-width:calc(100% - 80px)}
-.rules-footer{top:auto;bottom:72px;width:calc(50% - 84px);padding:0 40px}
+.rules-footer{top:auto;bottom:72px;width:calc(50% - 84px);padding:0 40px;font-size:36px;line-height:46px}
 .rules-next{left:calc(50% + 12px);right:72px;top:auto;bottom:72px;width:auto;padding:0 40px 8px}
 /* Stacked fields match the selected registration composition. */
 #registration{position:absolute;left:72px;right:72px;top:192px;height:424px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:24px}
@@ -190,7 +188,7 @@
 .field .field-hint,.field.focused .field-hint,.field.filled .field-hint{left:auto;right:22px;top:12px;max-width:70%;text-align:right;color:var(--dark);font-size:24px;line-height:32px;font-weight:500;pointer-events:none}.field-hint:empty{display:none}
 .form-aside{grid-column:span 4;display:grid;grid-template-rows:minmax(0,1fr) 152px;gap:24px;animation:tile-enter .35s backwards}
 .consent{margin:0;border:2px solid var(--white24);border-radius:32px;background:var(--white8);padding:20px 24px;font-size:30px;line-height:38px;color:rgba(255,255,255,.76);animation:none}
-.consent button{min-height:40px;color:white}.form-next{height:152px}.form-next .action-disc{width:88px;height:88px;flex-basis:88px}
+.consent button{min-height:40px;color:white}.consent{ text-wrap:pretty }.form-next{height:152px}.form-next .action-disc{width:88px;height:88px;flex-basis:88px}
 .form-error:empty{display:none}.form-error{left:32px;right:32px;top:auto;bottom:28px;width:auto;padding:20px;background:var(--mint);border:2px solid var(--dark24);border-radius:16px;font-size:28px;line-height:36px;color:var(--dark)}
 .keyboard{right:0;bottom:0;width:auto;height:auto;background:rgba(255,255,255,.055)}
 .key{flex:1 1 112px}.key.wide{flex-grow:2}.key.space{flex-grow:2}

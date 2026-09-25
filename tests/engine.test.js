@@ -1,16 +1,22 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Round, createDeck, formatPhone, phoneDigits, validPhone, validName, normalizeName, formatTime, leaderboard, csvCell } from '../src/engine.js';
-import { CONFIG } from '../src/config.js';
+import { Round, createDeck, formatPhone, editPhone, phoneDigits, validPhone, validName, normalizeName, formatTime, leaderboard, csvCell } from '../src/engine.js';
+import { CONFIG, PRODUCTS } from '../src/config.js';
 
 test('every shuffled round has exactly nine distinct pairs and unique card ids',()=>{
-  const layouts=new Set();
+  const layouts=new Set(), selections=new Set(), seen=new Set();
   for(let r=0;r<100;r++){
     const deck=createDeck();assert.equal(deck.length,18);assert.equal(new Set(deck.map(c=>c.id)).size,18);
-    for(const product of new Set(deck.map(c=>c.product)))assert.equal(deck.filter(c=>c.product===product).length,2);
+    const products=new Set(deck.map(c=>c.product));assert.equal(products.size,9);
+    assert.equal(new Set(deck.map(c=>c.color)).size,9);
+    for(const product of products){
+      const pair=deck.filter(c=>c.product===product);assert.equal(pair.length,2);assert.equal(pair[0].color,pair[1].color);seen.add(product);
+    }
+    selections.add([...products].sort().join(','));
     layouts.add(deck.map(c=>c.id).join(','));
   }
-  assert.ok(layouts.size>95);
+  assert.ok(layouts.size>95);assert.ok(selections.size>90);
+  assert.equal(PRODUCTS.length,18);assert.deepEqual([...seen].sort(),PRODUCTS.map(p=>p.id).sort());
 });
 function setup(){let now=100;const round=new Round(createDeck(n=>n-1),()=>now);return {round,setTime:v=>now=v};}
 test('same card, invalid indices and a third click cannot alter a pending pair',()=>{
@@ -40,6 +46,26 @@ test('phone normalization accepts +7, 8, pasted mask and ten digits',()=>{
     assert.equal(phoneDigits(phone),'9996062811');assert.equal(formatPhone(phone),'+7 (999) 606-28-11');assert.equal(validPhone(phone),true);
   }
   for(const phone of ['','999','1111111111','9999999999'])assert.equal(validPhone(phone),false);
+});
+test('an initial 8 becomes +7 for both touch and physical typing; later eights stay',()=>{
+  assert.equal(formatPhone('8'),'+7');assert.equal(editPhone('','8'),'+7');
+  for(const raw of ['89996062818','79996062818','9996062818']){
+    let physical='',touch='';
+    for(const digit of raw){physical=formatPhone(physical+digit);touch=editPhone(touch,digit);}
+    assert.equal(physical,'+7 (999) 606-28-18');assert.equal(touch,physical);assert.ok(validPhone(touch));
+  }
+  assert.equal(editPhone('+7','8'),'+7 (8');
+  assert.equal(formatPhone('8005553535'),'+7 (800) 555-35-35');
+  assert.equal(formatPhone('+7 (800) 555-35-35'),'+7 (800) 555-35-35');
+});
+test('touch phone editing deletes, replaces selection, and keeps a single prefix',()=>{
+  assert.equal(editPhone('+7','back'),'');
+  assert.equal(editPhone('+7 (9','back'),'+7');
+  assert.equal(editPhone('+7 (999) 606-28-18','back'),'+7 (999) 606-28-1');
+  const value='+7 (999) 606-28-18';
+  assert.equal(editPhone(value,'8',0,value.length),'+7');
+  assert.equal(editPhone(value,'8',4,5),'+7 (899) 606-28-18');
+  assert.equal(editPhone(value,'5'),value);
 });
 test('Cyrillic, Latin, composed accents and compound names work; markup and digits do not',()=>{
   for(const name of ['Настя','Ичко','Анна-Мария',"O’Connor",'И','José'])assert.equal(validName(name),true);
