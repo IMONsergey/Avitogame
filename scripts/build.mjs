@@ -2,7 +2,7 @@ import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 await rm('dist', { recursive:true, force:true });
 await mkdir('dist', { recursive:true });
-for (const path of ['index.html','update.html','styles.css','src','assets']) await cp(path, 'dist/' + path, { recursive:true });
+for (const path of ['index.html','update.html','styles.css','src','assets','checks']) await cp(path, 'dist/' + path, { recursive:true });
 await writeFile('dist/.nojekyll', '');
 async function walk(root) {
   const paths=[];
