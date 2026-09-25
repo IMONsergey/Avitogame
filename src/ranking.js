@@ -1,0 +1,14 @@
+import { formatTime } from './engine.js';
+const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// Real results occupy individual cards. Unfilled places are marked with an em dash,
+// never with invented names or scores. Full names remain available to accessibility.
+export function rankingCards(rows, { slots = 10, currentId } = {}) {
+  if (!rows.length) return '<div class="empty-rank" role="listitem"><span class="empty-rank-icon" aria-hidden="true">✦</span><p>Пока нет результатов.<br>Сыграйте первым!</p></div>';
+  return Array.from({length:slots}, (_,i) => {
+    const r = rows[i], n = i + 1;
+    if (!r) return `<div class="leader-card vacant" role="listitem" aria-label="Место ${n}: пока нет результата" style="--row:${i}"><span class="leader-place" aria-hidden="true">${n}</span><span class="vacant-name" aria-hidden="true"></span><span class="leader-time" aria-hidden="true">—</span></div>`;
+    const name = `${r.lastName} ${r.firstName}`;
+    return `<div class="leader-card place-${n}${r.playerId === currentId ? ' current' : ''}" role="listitem" aria-label="${n}. ${esc(name)}, ${formatTime(r.durationMs)}${r.playerId === currentId ? ', ваш результат' : ''}" style="--row:${i}"><span class="leader-place">${n}</span><span class="leader-name${name.length > 36 ? ' long-name' : ''}" title="${esc(name)}">${esc(name)}</span><strong class="leader-time${formatTime(r.durationMs).length > 5 ? ' long-time' : ''}">${formatTime(r.durationMs)}</strong></div>`;
+  }).join('');
+}

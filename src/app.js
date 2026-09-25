@@ -1,5 +1,6 @@
 import { CONFIG, PRODUCTS } from './config.js';
 import { Round, createDeck, normalizeName, validName, phoneDigits, formatPhone, validPhone, formatTime, leaderboard, csvCell } from './engine.js';
+import { rankingCards } from './ranking.js';
 import { openDatabase, registerPlayer, saveAttempt, readStore, allData } from './storage.js';
 
 const stage = document.querySelector('#stage');
@@ -36,7 +37,8 @@ function backFace(hero = false) {
   return `<span class="card-back"><span class="card-surface">${image(hero ? 'hero-rim.svg' : 'card-rim.svg', 'card-rim')}${image(hero ? 'hero-face.svg' : 'card-face.svg', 'card-token')}<span class="question">?</span></span></span>`;
 }
 function frontFace(product, hero = false) {
-  return `<span class="card-front"><span class="card-surface">${image(hero ? 'hero-stage.svg' : 'card-stage.svg', 'product-stage')}${image('products/' + product + '.png', 'product')}</span></span>`;
+  const color = hero ? '#C9FFBF' : PRODUCTS.find(p => p.id === product).color;
+  return `<span class="card-front" style="--pair-color:${color}"><span class="card-surface">${image(hero ? 'hero-stage.svg' : 'card-stage.svg', 'product-stage')}${image('products/' + product + '.png', 'product')}${hero ? '' : '<span class="matched-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="m8 16 5 5 11-11" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'}</span></span>`;
 }
 function homeMarkup() {
   return `<section class="screen start-screen" aria-label="Найди пару">
@@ -68,9 +70,9 @@ function field(key, label) {
 function showRegister() {
   cancelPending(); screen = 'register'; activeInput = null; busy = false;
   stage.innerHTML = `<section class="screen register-screen" aria-labelledby="form-title"><h1 class="screen-title" id="form-title">Давайте познакомимся</h1>${backButton('rules')}
-  <form id="registration" novalidate><div class="form-panel">${field('firstName', 'Имя')}${field('lastName', 'Фамилия')}${field('phone', 'Телефон')}</div>
-  ${button('Далее', 'submit', 'form-next', 'arrow', true)}<div class="form-error" role="alert"></div></form>
-  <div class="consent"><p>Оставляя личную информацию,<br>вы соглашаетесь с</p><button data-action="terms">Условиями использования</button><button data-action="privacy">и с Политикой обработки персональных данных</button></div>
+  <form id="registration" novalidate><div class="form-panel"><div class="form-fields">${field('firstName', 'Имя')}${field('lastName', 'Фамилия')}${field('phone', 'Телефон')}</div>
+  <p class="consent">оставляя личную информацию, вы соглашаетесь с <button type="button" data-action="terms">Условиями использования</button> и с <button type="button" data-action="privacy">Политикой обработки персональных данных</button></p></div>
+  <button type="button" class="form-next arrow-submit" data-action="submit" aria-label="Начать игру" disabled><svg viewBox="0 0 240 240" aria-hidden="true" fill="none"><path d="M36 120h160M126 50l70 70-70 70" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="form-error" role="alert"></div></form>
   <div id="keyboard"></div></section>`;
   document.querySelector('#registration').addEventListener('submit', e => { e.preventDefault(); submitRegistration(); });
   for (const input of document.querySelectorAll('.field input')) {
@@ -167,7 +169,7 @@ function startRound() {
   stage.innerHTML = `<section class="screen game-screen" aria-labelledby="game-title"><h1 id="game-title" class="game-title">Найдите пару одинаковых картинок<br>за максимально короткое время</h1>
   <div class="pairs-tile"><span>Найдено пар</span><strong><span id="pair-count">0</span><span class="pair-total"> / 9</span></strong><div class="pair-progress" role="progressbar" aria-label="Найдено пар" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0">${Array.from({length:9}, () => '<span aria-hidden="true"></span>').join('')}</div></div>
   <div class="time-tile"><span>Время</span><output id="timer" aria-label="Время игры">0:00</output></div>
-  <div class="board" aria-label="Игровое поле, 18 карточек">${round.deck.map((c, i) => `<button class="card" data-card="${i}" aria-label="Карточка ${i + 1}, закрыта" aria-pressed="false"><span class="card-inner">${backFace()}${frontFace(c.product)}</span></button>`).join('')}</div>
+  <div class="board" aria-label="Игровое поле, 18 карточек">${round.deck.map((c, i) => `<button class="card" style="--deal:${i}" data-card="${i}" aria-label="Карточка ${i + 1}, закрыта" aria-pressed="false"><span class="card-inner">${backFace()}${frontFace(c.product)}</span></button>`).join('')}</div>
   <button class="restart" data-action="restart">${image('restart.svg')}<span>Рестарт</span></button><div class="match-feedback" aria-hidden="true"></div><button type="button" class="game-exit" data-action="exit">${icon('exit')}<span>Выйти из игры</span></button></section>`;
   function tick() { const timer = document.querySelector('#timer'); if (timer && round) timer.textContent = formatTime(round.elapsed); if (!round?.complete && screen === 'game') animationFrame = requestAnimationFrame(tick); }
   tick(); say('Игра началась. Найдите девять пар.');
@@ -202,6 +204,11 @@ function showExit() {
   if (screen !== 'game' || round?.complete) return;
   showDialog('Выйти из игры?', `<p>Текущая попытка не сохранится.<br>Вы сможете начать новую игру.</p><div class="exit-actions">${button('Продолжить', 'close', '', 'play')}${button('Выйти', 'home', 'quiet solid', '')}</div>`, () => document.querySelector('[data-action="exit"]')?.focus());
 }
+function requestRestart() {
+  if (screen === 'game' && round && !round.complete && (round.moves || round.open.length)) {
+    showDialog('Начать заново?', `<p>Текущая попытка не сохранится.<br>Карточки перемешаются, время начнётся с нуля.</p><div class="exit-actions">${button('Продолжить', 'close', '', 'play')}${button('Рестарт', 'restart-now', 'quiet solid', '')}</div>`, () => document.querySelector('[data-action="restart"]')?.focus());
+  } else { removeModal(); startRound(); }
+}
 function chooseCard(index) {
   if (screen !== 'game' || !round || modalClose) return;
   const result = round.choose(index);
@@ -230,9 +237,12 @@ async function finishRound() {
     showDialog('Результат не сохранён', `<p>Ваше время: ${formatTime(finishedRound.elapsed)}. Не закрывайте игру. Повторите сохранение.</p>${button('Повторить', 'retry-save')}`, () => {});
   }
 }
-function tableRows(rows, compact = false) {
-  if (!rows.length) return `<p class="empty-rank">Пока нет результатов.<br>Сыграйте первым!</p>`;
-  return rows.map((r, i) => `<div class="ranking-row ${r.playerId === player?.id ? 'current' : ''} ${compact ? 'compact' : ''}" role="row"><span role="cell">${i + 1}</span><span class="player-name" role="cell">${esc(r.lastName)} ${esc(r.firstName)}</span><strong role="cell">${formatTime(r.durationMs)}</strong></div>`).join('');
+function victoryMedal() {
+  return `<svg class="victory-medal" viewBox="0 0 240 240" aria-hidden="true"><circle cx="120" cy="132" r="88" fill="#003914" opacity=".18"/><circle cx="120" cy="112" r="88" fill="#04E061" stroke="#FFFFFF" stroke-opacity=".6" stroke-width="3"/><circle cx="120" cy="112" r="66" fill="#C9FFBF" stroke="#003914" stroke-opacity=".16" stroke-width="3"/><path d="M57 76c12-28 45-47 77-40" fill="none" stroke="white" stroke-opacity=".7" stroke-width="7" stroke-linecap="round"/><g transform="translate(80 71) scale(1.25)" fill="#003914">${iconPaths.star}</g><path d="m204 32 4 10 11 4-11 4-4 10-4-10-11-4 11-4Z" fill="#003914"/><path d="m32 176 3 8 9 3-9 3-3 8-3-8-9-3 9-3Z" fill="#003914"/></svg>`;
+}
+function victoryConfetti() {
+  const colors = ['#04E061','#C9FFBF','#BADAFB','#DFCDF3','#FFFFFF'];
+  return `<div class="victory-confetti" aria-hidden="true">${Array.from({length:42}, (_,i) => `<i style="--x:${(i*97)%100}%;--drift:${((i*43)%240)-120}px;--spin:${(i%2?1:-1)*(240+(i*31)%480)}deg;--delay:${(i%9)*.065}s;--duration:${2.2+(i%5)*.23}s;--confetti:${colors[i%colors.length]};--size:${12+(i%4)*5}px"></i>`).join('')}</div>`;
 }
 function openModal(markup, onClose) {
   document.querySelector('.overlay')?.remove();
@@ -249,16 +259,24 @@ function removeModal() {
 function closeModal() { const callback = modalClose; removeModal(); callback?.(); }
 function showResult(rows) {
   const eligible = round.elapsed <= CONFIG.giftTimeMs;
-  openModal(`<section class="result-modal" role="dialog" aria-modal="true" aria-labelledby="result-title"><div class="result-top"><div class="result-time"><p>Ваше время</p><strong>${formatTime(round.elapsed)}</strong></div><div class="result-gift"><h2 id="result-title">Вы прошли<br>игру!</h2><p>${eligible ? `Ваш подарок уже ждёт вас<br>${esc(CONFIG.giftLocation)}` : 'Попробуйте ещё раз<br>и уложитесь в 45 секунд'}</p>${closeButton()}</div></div><div class="top-three"><h2>Топ-3<br>игроков</h2><div class="compact-table" role="table" aria-label="Топ-3 игроков"><div class="ranking-head"><span>Имя</span><span>Время</span></div>${tableRows(rows, true)}</div></div><div class="result-actions">${button('На главную', 'home', 'quiet solid', '')}${button('Рестарт', 'restart', '', 'restart-large')}</div></section>`, showHome);
+  const time = formatTime(round.elapsed);
+  openModal(`<section class="result-modal" role="dialog" aria-modal="true" aria-labelledby="result-title">
+    <div class="result-left"><div class="result-hero"><h2 id="result-title">Вы прошли<br>игру!</h2>${victoryMedal()}</div>
+    <div class="result-time"><p>Ваше время</p><strong class="${time.length > 5 ? 'long-time' : ''}">${time}</strong><div class="result-message">${icon(eligible ? 'gift' : 'star')}<p>${eligible ? `Ваш подарок уже ждёт вас<br>${esc(CONFIG.giftLocation)}` : 'Попробуйте ещё раз<br>и уложитесь в 45 секунд'}</p></div></div></div>
+    <div class="result-leaders"><h2>Топ-3 игроков</h2>${closeButton()}<div class="leader-labels"><span>Имя</span><span>Время</span></div><div class="leader-list compact-leaders" role="list" aria-label="Топ-3 игроков">${rankingCards(rows, {slots:3, currentId:player?.id})}</div></div>
+    <div class="result-actions">${button('На главную', 'home', 'quiet solid', '')}${button('Рестарт', 'restart', '', 'restart-large')}</div>${victoryConfetti()}
+  </section>`, showHome);
+  later(() => document.querySelector('.victory-confetti')?.remove(), 4400);
 }
 async function showRank() {
   const current = generation;
   try {
     const rows = leaderboard(await readStore('attempts'), CONFIG.eventId);
     if (current !== generation) return;
-    openModal(`<section class="rank-modal" role="dialog" aria-modal="true" aria-labelledby="rank-title"><div class="rank-panel"><h2 id="rank-title">Статистика</h2><p class="rank-subtitle">Самые быстрые</p>${closeButton()}<div class="rank-table" role="table" aria-label="Рейтинг игроков"><div class="ranking-head"><span>Имя</span><span>Время</span></div><div class="ranking-scroll" tabindex="0">${tableRows(rows)}</div></div></div>${button('Начать игру', 'rules', '', 'arrow-large')}</section>`, () => document.querySelector('[data-action="rank"]')?.focus());
+    openModal(`<section class="rank-modal" role="dialog" aria-modal="true" aria-labelledby="rank-title"><div class="rank-panel"><header class="rank-heading">${icon('star')}<div><h2 id="rank-title">Статистика</h2><p>Самые быстрые</p></div></header>${closeButton()}<div class="leader-list full-leaders ${rows.length ? '' : 'is-empty'}" role="list" aria-label="Рейтинг игроков">${rankingCards(rows, {slots:10, currentId:player?.id})}</div></div>${button('Начать игру', 'rules', '', 'arrow-large')}</section>`, () => document.querySelector('[data-action="rank"]')?.focus());
   } catch { showDialog('Не удалось открыть рейтинг', '<p>Обновите страницу и попробуйте ещё раз.</p>'); }
 }
+
 function showDialog(title, body, onClose = () => {}) {
   openModal(`<section class="message-modal" role="dialog" aria-modal="true" aria-labelledby="message-title"><h2 id="message-title">${esc(title)}</h2>${closeButton()}<div class="message-body">${body}</div></section>`, onClose);
 }
@@ -285,7 +303,8 @@ stage.addEventListener('click', e => {
   else if (action === 'submit') submitRegistration();
   else if (action === 'rank') showRank();
   else if (action === 'exit') showExit();
-  else if (action === 'restart') { removeModal(); startRound(); }
+  else if (action === 'restart') requestRestart();
+  else if (action === 'restart-now') { removeModal(); startRound(); }
   else if (action === 'terms' || action === 'privacy') showLegal(action);
   else if (action === 'retry-save') { removeModal(); finishRound(); }
   else if (action === 'reload') location.reload();
