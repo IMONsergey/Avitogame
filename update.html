@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#003914">
+  <title>Авито · Обновление игры</title>
+  <style>[hidden]{display:none!important}body{margin:0;min-height:100vh;background:#003914;color:#fff;display:grid;place-content:center;text-align:center;font:28px/1.4 Arial,sans-serif}p{margin:12px 24px}a{display:inline-block;margin:24px auto;padding:18px 32px;border-radius:20px;background:#04e061;color:#003914;text-decoration:none}.dot{width:48px;height:48px;border:5px solid #ffffff30;border-top-color:#04e061;border-radius:50%;margin:0 auto 24px;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.dot{animation:none}}</style>
+</head>
+<body><div class="dot" aria-hidden="true"></div><p id="status" role="status">Обновляем игру…</p><a href="./" id="retry" hidden>Открыть игру</a>
+<script>
+(async()=>{
+  if(!('serviceWorker' in navigator)){location.replace('./');return;}
+  try{
+    const registration=await navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'});
+    await registration.update();
+    const worker=registration.installing||registration.waiting;
+    if(worker&&worker.state!=='activated')await new Promise((resolve,reject)=>{
+      const timeout=setTimeout(()=>reject(new Error('timeout')),20000);
+      const check=()=>{if(worker.state==='activated'){clearTimeout(timeout);resolve();}else if(worker.state==='redundant'){clearTimeout(timeout);reject(new Error('install'));}};
+      worker.addEventListener('statechange',check);check();
+    });
+    await navigator.serviceWorker.ready;
+    location.replace('./');
+  }catch{
+    document.querySelector('.dot').hidden=true;
+    document.querySelector('#status').textContent='Не удалось загрузить обновление. Проверьте соединение.';
+    const retry=document.querySelector('#retry');retry.hidden=false;retry.href='./update.html';retry.textContent='Повторить';
+  }
+})();
+</script></body></html>

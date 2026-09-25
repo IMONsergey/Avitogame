@@ -19,6 +19,19 @@ function say(message) { announce.textContent = message; }
 function resize() { stage.style.setProperty('--scale', Math.min(innerWidth / 1920, innerHeight / 1080)); }
 addEventListener('resize', resize); resize();
 
+const iconPaths = {
+  back: '<path d="m38 12-20 20 20 20M20 32h36"/>',
+  exit: '<path d="M27 12H12v40h15M36 20l12 12-12 12M24 32h24"/>',
+  user: '<circle cx="32" cy="21" r="11"/><path d="M12 54c0-12 8-19 20-19s20 7 20 19"/>',
+  gift: '<path d="M12 29h40v26H12zM8 18h48v11H8zM32 18v37"/><path d="M32 18C13 21 13 5 22 7c5 1 8 6 10 11Zm0 0C51 21 51 5 42 7c-5 1-8 6-10 11Z"/>',
+  star: '<path d="m32 6 8 17 19 3-14 13 3 19-16-9-16 9 3-19L5 26l19-3Z"/>',
+};
+const icon = (name, cls = '') => `<svg class="ui-icon ${cls}" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name]}</svg>`;
+const backButton = action => `<button type="button" class="screen-back" data-action="${action}">${icon('back')}<span>Назад</span></button>`;
+function heart(cls) {
+  return `<svg class="match-heart ${cls}" viewBox="0 0 100 96" aria-hidden="true"><path d="M50 87 13 52C-11 26 19-2 40 17l10 10 10-10C81-2 111 26 87 52Z" fill="currentColor"/><path d="M19 34c-1-12 11-17 19-9" fill="none" stroke="white" stroke-opacity=".65" stroke-width="6" stroke-linecap="round"/></svg>`;
+}
+
 function backFace(hero = false) {
   return `<span class="card-back"><span class="card-surface">${image(hero ? 'hero-rim.svg' : 'card-rim.svg', 'card-rim')}${image(hero ? 'hero-face.svg' : 'card-face.svg', 'card-token')}<span class="question">?</span></span></span>`;
 }
@@ -40,23 +53,28 @@ function showHome() {
 }
 function showRules() {
   cancelPending(); screen = 'rules';
-  stage.innerHTML = `<section class="screen" aria-labelledby="rules-title"><h1 id="rules-title" class="screen-title">Вы в игре «Найди пару»</h1>
-  <ol class="rules-grid"><li><span class="rule-number">1</span><p>Зарегистрируйтесь<br>в игре</p></li><li><span class="rule-number">2</span><p>Переворачивайте карточки<br>и находите пары</p></li><li><span class="rule-number">3</span><p>Уложитесь в 45 секунд<br>и получите подарок</p></li><li><span class="rule-number">4</span><p>Попадите в топ-10,<br>чтобы стать обладателем<br>суперприза</p></li></ol>
-  <p class="rules-footer">Количество попыток не ограничено<br>Удачи!</p>${button('Далее', 'register', 'rules-next')}</section>`;
+  stage.innerHTML = `<section class="screen rules-screen" aria-labelledby="rules-title"><h1 id="rules-title" class="screen-title">Вы в игре «Найди пару»</h1>${backButton('home')}
+  <ol class="rules-grid">
+    <li class="rule-register"><span class="rule-number">1</span>${icon('user', 'rule-icon')}<p>Зарегистрируйтесь<br>в игре</p></li>
+    <li class="rule-pairs"><span class="rule-number">2</span><p>Переворачивайте карточки<br>и находите пары</p><div class="rule-pair-art" aria-hidden="true"><div class="rule-mini-card first">${image('products/headphones.png')}</div><div class="rule-mini-card second">${image('products/headphones.png')}</div><span class="rule-pair-spark">✦</span></div></li>
+    <li class="rule-speed"><span class="rule-number">3</span><p>Уложитесь в 45 секунд<br>и получите подарок</p><div class="rule-visual" aria-hidden="true"><span>45</span>${icon('gift')}</div></li>
+    <li class="rule-prize"><span class="rule-number">4</span><p>Попадите в топ-10,<br>чтобы стать обладателем<br>суперприза</p><div class="rule-visual" aria-hidden="true"><span>10</span>${icon('star')}</div></li>
+  </ol><div class="rules-footer"><p>Количество попыток не ограничено<br><span>Удачи!</span></p></div>${button('Далее', 'register', 'rules-next', 'arrow-large')}</section>`;
 }
+
 function field(key, label) {
   return `<label class="field ${form[key] ? 'filled' : ''}"><span>${label}</span><input aria-label="${label}" name="${key}" id="${key}" type="text" inputmode="none" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="${key === 'phone' ? 24 : 32}" value="${esc(form[key])}" placeholder=" "></label>`;
 }
 function showRegister() {
   cancelPending(); screen = 'register'; activeInput = null; busy = false;
-  stage.innerHTML = `<section class="screen" aria-labelledby="form-title"><h1 class="screen-title" id="form-title">Давайте познакомимся</h1>
+  stage.innerHTML = `<section class="screen register-screen" aria-labelledby="form-title"><h1 class="screen-title" id="form-title">Давайте познакомимся</h1>${backButton('rules')}
   <form id="registration" novalidate><div class="form-panel">${field('firstName', 'Имя')}${field('lastName', 'Фамилия')}${field('phone', 'Телефон')}</div>
   ${button('Далее', 'submit', 'form-next', 'arrow', true)}<div class="form-error" role="alert"></div></form>
   <div class="consent"><p>Оставляя личную информацию,<br>вы соглашаетесь с</p><button data-action="terms">Условиями использования</button><button data-action="privacy">и с Политикой обработки персональных данных</button></div>
   <div id="keyboard"></div></section>`;
   document.querySelector('#registration').addEventListener('submit', e => { e.preventDefault(); submitRegistration(); });
   for (const input of document.querySelectorAll('.field input')) {
-    input.addEventListener('focus', () => { activeInput = input; input.closest('.field').classList.add('focused'); document.querySelector('.consent').hidden = true; renderKeyboard(); });
+    input.addEventListener('focus', () => { activeInput = input; input.closest('.field').classList.add('focused'); renderKeyboard(); });
     input.addEventListener('blur', () => input.closest('.field').classList.remove('focused'));
     input.addEventListener('input', () => {
       const caret = input.selectionStart;
@@ -66,9 +84,10 @@ function showRegister() {
       if (changed && input.name !== 'phone') input.setSelectionRange(Math.min(caret, clean.length), Math.min(caret, clean.length));
       form[input.name] = clean; updateForm();
     });
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); keyboardNext(); } if (e.key === 'Escape') hideKeyboard(); });
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); keyboardNext(); } if (e.key === 'Escape') input.blur(); });
   }
   updateForm();
+  document.querySelector('#firstName').focus({ preventScroll: true });
 }
 function updateForm() {
   for (const input of document.querySelectorAll('.field input')) input.closest('.field').classList.toggle('filled', !!input.value);
@@ -101,7 +120,10 @@ function keyboardNext() {
   if (!activeInput) return;
   const key = activeInput.name;
   if (key !== 'phone') document.querySelector(key === 'firstName' ? '#lastName' : '#phone').focus();
-  else { hideKeyboard(); if (!validPhone(form.phone)) document.querySelector('.form-error').textContent = 'Проверьте номер телефона'; }
+  else {
+    if (!validPhone(form.phone)) document.querySelector('.form-error').textContent = 'Проверьте номер телефона';
+    else document.querySelector('[data-action="submit"]').focus({ preventScroll: true });
+  }
 }
 function typeKey(key) {
   if (!activeInput || !activeInput.isConnected) return;
@@ -143,9 +165,10 @@ function startRound() {
   if (deck.map(c => c.id).join(',') === previous) deck.push(deck.shift());
   round = new Round(deck);
   stage.innerHTML = `<section class="screen game-screen" aria-labelledby="game-title"><h1 id="game-title" class="game-title">Найдите пару одинаковых картинок<br>за максимально короткое время</h1>
+  <div class="pairs-tile"><span>Найдено пар</span><strong><span id="pair-count">0</span><span class="pair-total"> / 9</span></strong><div class="pair-progress" role="progressbar" aria-label="Найдено пар" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0">${Array.from({length:9}, () => '<span aria-hidden="true"></span>').join('')}</div></div>
   <div class="time-tile"><span>Время</span><output id="timer" aria-label="Время игры">0:00</output></div>
   <div class="board" aria-label="Игровое поле, 18 карточек">${round.deck.map((c, i) => `<button class="card" data-card="${i}" aria-label="Карточка ${i + 1}, закрыта" aria-pressed="false"><span class="card-inner">${backFace()}${frontFace(c.product)}</span></button>`).join('')}</div>
-  <button class="restart" data-action="restart">${image('restart.svg')}<span>Рестарт</span></button></section>`;
+  <button class="restart" data-action="restart">${image('restart.svg')}<span>Рестарт</span></button><div class="match-feedback" aria-hidden="true"></div><button type="button" class="game-exit" data-action="exit">${icon('exit')}<span>Выйти из игры</span></button></section>`;
   function tick() { const timer = document.querySelector('#timer'); if (timer && round) timer.textContent = formatTime(round.elapsed); if (!round?.complete && screen === 'game') animationFrame = requestAnimationFrame(tick); }
   tick(); say('Игра началась. Найдите девять пар.');
 }
@@ -155,17 +178,36 @@ function updateCards(result) {
     node.classList.toggle('flipped', revealed);
     node.classList.toggle('matched', matched);
     node.classList.toggle('mismatch', open && result === 'mismatch');
-    node.classList.toggle('pulse', matched && open && (result === 'match' || result === 'complete'));
     node.setAttribute('aria-pressed', String(revealed));
     node.setAttribute('aria-label', `Карточка ${i + 1}, ${revealed ? round.deck[i].label + (matched ? ', пара найдена' : '') : 'закрыта'}`);
     node.setAttribute('aria-disabled', String(matched || round.locked));
   });
+  const count = round.matched.size / 2;
+  document.querySelector('#pair-count').textContent = count;
+  document.querySelector('.pair-progress').setAttribute('aria-valuenow', count);
+  document.querySelectorAll('.pair-progress > span').forEach((bar, i) => bar.classList.toggle('found', i < count));
+}
+function celebrateMatch() {
+  for (const i of round.open) {
+    const card = document.querySelector(`[data-card="${i}"]`);
+    card.classList.add('match-flash');
+    later(() => card.classList.remove('match-flash'), 1200);
+  }
+  const feedback = document.querySelector('.match-feedback');
+  feedback.innerHTML = `<div class="pair-celebration">${heart('heart-left')}${heart('heart-main')}${heart('heart-right')}<span class="match-spark s1">✦</span><span class="match-spark s2">✦</span><span class="match-spark s3">✦</span><span class="match-spark s4">✦</span></div>`;
+  const celebration = feedback.firstElementChild;
+  later(() => celebration.remove(), 1500);
+}
+function showExit() {
+  if (screen !== 'game' || round?.complete) return;
+  showDialog('Выйти из игры?', `<p>Текущая попытка не сохранится.<br>Вы сможете начать новую игру.</p><div class="exit-actions">${button('Продолжить', 'close', '', 'play')}${button('Выйти', 'home', 'quiet solid', '')}</div>`, () => document.querySelector('[data-action="exit"]')?.focus());
 }
 function chooseCard(index) {
   if (screen !== 'game' || !round || modalClose) return;
   const result = round.choose(index);
   if (result === 'ignored') return;
   updateCards(result);
+  if (result === 'match' || result === 'complete') celebrateMatch();
   if (result === 'first') return;
   if (result === 'mismatch') {
     say('Карточки не совпали'); later(() => { round.settle(); updateCards(); }, CONFIG.mismatchMs);
@@ -223,8 +265,8 @@ function showDialog(title, body, onClose = () => {}) {
 function showLegal(which) {
   hideKeyboard();
   const url = which === 'terms' ? CONFIG.termsUrl : CONFIG.privacyUrl;
-  if (url && /^https:\/\//.test(url)) { window.open(url, '_blank', 'noopener,noreferrer'); return; }
-  showDialog('Документ недоступен', '<p>Документ мероприятия пока не добавлен.<br>Обратитесь к организатору.</p>');
+  if (url && /^https:\/\//.test(url)) { window.open(url, '_blank', 'noopener,noreferrer'); document.querySelector('#firstName')?.focus({ preventScroll: true }); return; }
+  showDialog('Документ недоступен', '<p>Документ мероприятия пока не добавлен.<br>Обратитесь к организатору.</p>', () => document.querySelector('#firstName')?.focus({ preventScroll: true }));
 }
 
 stage.addEventListener('pointerdown', e => {
@@ -235,13 +277,14 @@ stage.addEventListener('click', e => {
   const key = e.target.closest('[data-key]'); if (key) { typeKey(key.dataset.key); return; }
   const card = e.target.closest('[data-card]'); if (card) { chooseCard(Number(card.dataset.card)); return; }
   const action = e.target.closest('[data-action]')?.dataset.action;
-  if (!action) { if (screen === 'register' && !e.target.closest('.field, .keyboard, .overlay')) hideKeyboard(); return; }
+  if (!action) return;
   if (action === 'close') { closeModal(); return; }
   if (action === 'rules') { removeModal(); showRules(); }
   else if (action === 'home') { removeModal(); showHome(); }
   else if (action === 'register') showRegister();
   else if (action === 'submit') submitRegistration();
   else if (action === 'rank') showRank();
+  else if (action === 'exit') showExit();
   else if (action === 'restart') { removeModal(); startRound(); }
   else if (action === 'terms' || action === 'privacy') showLegal(action);
   else if (action === 'retry-save') { removeModal(); finishRound(); }
@@ -288,7 +331,7 @@ async function boot() {
   try {
     await Promise.all([openDatabase(), preload()]);
     if (operatorMode) await showOperator(); else showHome();
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(registration => registration.update()).catch(() => {});
   } catch {
     stage.innerHTML = `<section class="screen boot-error"><h1>Не удалось загрузить игру</h1><p>Проверьте соединение и разрешите хранение данных в браузере.</p>${button('Повторить', 'reload')}</section>`;
   }

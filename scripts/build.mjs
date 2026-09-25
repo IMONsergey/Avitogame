@@ -2,7 +2,7 @@ import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 await rm('dist', { recursive:true, force:true });
 await mkdir('dist', { recursive:true });
-for (const path of ['index.html','styles.css','src','assets']) await cp(path, 'dist/' + path, { recursive:true });
+for (const path of ['index.html','update.html','styles.css','src','assets']) await cp(path, 'dist/' + path, { recursive:true });
 await writeFile('dist/.nojekyll', '');
 async function walk(root) {
   const paths=[];
@@ -19,14 +19,34 @@ const version=hash.digest('hex').slice(0,12);
 const urls=files.filter(p=>!p.endsWith('.nojekyll')).map(p=>'./'+p.slice(5));
 await writeFile('dist/sw.js', `const CACHE='avito-pairs-${version}';
 const FILES=${JSON.stringify(['./',...urls])};
-self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES))));
-self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('avito-pairs-')&&key!==CACHE).map(key=>caches.delete(key))))));
+self.addEventListener('install',event=>event.waitUntil(
+ caches.open(CACHE).then(cache=>cache.addAll(FILES.map(url=>new Request(url,{cache:'reload'})))).then(()=>self.skipWaiting())
+));
+self.addEventListener('activate',event=>event.waitUntil((async()=>{
+ await caches.open(CACHE);
+ await self.clients.claim();
+ await Promise.all((await caches.keys()).filter(key=>key.startsWith('avito-pairs-')&&key!==CACHE).map(key=>caches.delete(key)));
+})()));
 self.addEventListener('fetch',event=>{
- if(event.request.method!=='GET'||new URL(event.request.url).origin!==self.location.origin)return;
+ const request=event.request, url=new URL(request.url);
+ if(request.method!=='GET'||url.origin!==self.location.origin)return;
+ // Code and navigation must not get stuck in an old offline release.
+ const fresh=request.mode==='navigate'||/\\.(?:html|css|js)$/.test(url.pathname);
  event.respondWith(caches.open(CACHE).then(async cache=>{
-   const cached=await cache.match(event.request,{ignoreSearch:true});
-   if(cached)return cached;
-   try{return await fetch(event.request);}catch(error){if(event.request.mode==='navigate')return cache.match('./index.html');throw error;}
+   if(fresh){
+     try{
+       const response=await fetch(request,{cache:'no-cache'});
+       if(response.ok){await cache.put(request,response.clone());return response;}
+       const cached=await cache.match(request,{ignoreSearch:true});
+       return cached||response;
+     }catch(error){
+       const cached=await cache.match(request,{ignoreSearch:true});
+       if(cached)return cached;
+       if(request.mode==='navigate')return cache.match('./index.html');
+       throw error;
+     }
+   }
+   return (await cache.match(request,{ignoreSearch:true}))||fetch(request);
  }));
 });
 `);
